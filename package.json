@@ -1,0 +1,34 @@
+{
+  "name": "libstun",
+  "version": "0.0.1",
+  "description": "STUN (Simple Traversal of UDP through NATs) library written entirely in JavaScript",
+  "main": "index.js",
+  "keywords": [
+    "nat",
+    "stun",
+    "udp"
+  ],
+  "author": {
+    "name": "Nico Janssens",
+    "email": "nico.b.janssens@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ip": "*",
+    "q": "*",
+    "winston": "*"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "chai-as-promised": "*",
+    "mocha": "*",
+    "yargs": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nicojanssens/libstun.git"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha test/*.unit.js"
+  }
+}
