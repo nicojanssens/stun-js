@@ -114,25 +114,6 @@ SrflxSocket.prototype.sendData = function (data, host, port, onSuccess, onFailur
   })
 }
 
-/** Message arrival */
-
-SrflxSocket.prototype.onIncomingMessage = function () {
-  var self = this
-
-  return function (msg, rinfo) {
-    winston.debug('[libstun] receiving message from ' + JSON.stringify(rinfo))
-
-    // this is a stun packet
-    var stunPacket = Packet.decode(msg)
-    if (stunPacket) {
-      self.onIncomingStunMessage(stunPacket)
-      return
-    }
-    // this is not a stun packet
-    self.emit('message', msg, rinfo)
-  }
-}
-
 /** Message composition */
 
 // Create bind request message
