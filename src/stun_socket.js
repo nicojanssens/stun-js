@@ -4,6 +4,8 @@ var util = require('util')
 var Q = require('q')
 var winston = require('winston')
 
+var Packet = require('./packet')
+
 // Init socket object
 var StunSocket = function (stunHost, stunPort) {
   if (stunPort === undefined || stunHost === undefined) {
@@ -58,6 +60,8 @@ StunSocket.prototype.listenP = function (args) {
 
 // Close socket
 StunSocket.prototype.close = function () {
+  var listeningAddress = this._socket.address()
+  winston.debug('[libstun] closing socket ' + listeningAddress.address + ':' + listeningAddress.port)
   this._socket.close()
 }
 
@@ -122,17 +126,56 @@ StunSocket.prototype.send = function (message, port, host, cb) {
 
 // Incoming message handler
 StunSocket.prototype.onIncomingMessage = function () {
-  throw new Error('Subclass must implement onIncomingMessage')
+  var self = this
+  return function (msg, rinfo) {
+    winston.debug('[libstun] receiving message from ' + JSON.stringify(rinfo))
+
+    // this is a stun packet
+    var stunPacket = Packet.decode(msg)
+    if (stunPacket) {
+      switch (stunPacket.type) {
+        case Packet.TYPE.SUCCESS_RESPONSE:
+          self.onIncomingStunResponse(stunPacket, rinfo)
+          break
+        case Packet.TYPE.ERROR_RESPONSE:
+          self.onIncomingStunResponse(stunPacket, rinfo)
+          break
+        case Packet.TYPE.INDICATION:
+          self.onIncomingStunIndication(stunPacket, rinfo)
+          break
+        default:
+          var errorMsg = "[libstun] don't know how to process incoming STUN message -- dropping it on the floor"
+          winston.error(errorMsg)
+          throw new Error(errorMsg)
+      }
+    } else {
+      self.onOtherIncomingMessage(msg, rinfo)
+    }
+  }
 }
 
-// Incoming STUN message handler
-StunSocket.prototype.onIncomingStunMessage = function (stunPacket) {
+// Incoming STUN reply
+StunSocket.prototype.onIncomingStunResponse = function (stunPacket, rinfo) {
   // this is a stun reply
-  var onResponse = this._responseCallbacks[stunPacket.tid]
-  if (onResponse) {
-    onResponse(stunPacket)
+  var onResponseCallback = this._responseCallbacks[stunPacket.tid]
+  if (onResponseCallback) {
+    onResponseCallback(stunPacket)
     delete this._responseCallbacks[stunPacket.tid]
+  } else {
+    var errorMsg = '[libstun] no handler available to process response with tid ' + stunPacket.tid
+    winston.error(errorMsg)
+    throw new Error(errorMsg)
   }
+}
+
+// Incoming STUN indication
+StunSocket.prototype.onIncomingStunIndication = function (stunPacket, rinfo) {
+  this.emit('indication', stunPacket, rinfo)
+}
+
+// Incoming message that is different from regular STUN packets
+StunSocket.prototype.onOtherIncomingMessage = function (msg, rinfo) {
+  this.emit('message', msg, rinfo)
 }
 
 // Error handler
