@@ -4,6 +4,17 @@ var Attributes = require('./attributes')
 
 // packet class
 var Packet = function (method, type, attrs) {
+  if (!containsValue(Packet.METHOD, method)) {
+    var methodError = '[libstun] invalid packet method attribute'
+    winston.error(methodError)
+    throw new Error(methodError)
+  }
+  if (!containsValue(Packet.TYPE, type)) {
+    var typeError = '[libstun] invalid packet type attribute'
+    winston.error(typeError)
+    throw new Error(typeError)
+  }
+
   this.method = method
   this.type = type
   this.attrs = attrs || new Attributes()
@@ -117,8 +128,19 @@ Packet.prototype._getTransactionId = function () {
   return (Math.random() * Packet.TID_MAX)
 }
 
+// utils
 function containsFlag (number, flag) {
   return (number & flag) === flag
+}
+
+function containsValue (object, value) {
+  var result = false
+  Object.keys(object).forEach(function (key) {
+    if (object[key] === value) {
+      result = true
+    }
+  })
+  return result
 }
 
 module.exports = Packet
