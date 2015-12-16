@@ -1,5 +1,5 @@
 {
-  "name": "libstun",
+  "name": "stun-js",
   "version": "0.1.0",
   "description": "STUN (Simple Traversal of UDP through NATs) library written entirely in JavaScript",
   "main": "index.js",
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/nicojanssens/libstun.git"
+    "url": "git://github.com/nicojanssens/stun-js.git"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha test/*.unit.js"
