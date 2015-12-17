@@ -1,3 +1,4 @@
+var dgram = require('dgram')
 var SrflxSocket = require('../src/srflx_socket')
 var winston = require('winston')
 
@@ -72,59 +73,89 @@ describe('#STUN operations', function () {
     )
   })
 
-  it('should receive messages that are sent to a srflx address', function (done) {
-    var testData = 'hello there'
-    var testRuns = 1
-    var messagesReceived = 0
-
-    var socketAlice = new SrflxSocket(testAddr, testPort)
-    var socketBob = new SrflxSocket(testAddr, testPort)
-    var addressAlice, addressBob
-
-    // subscribe to incoming messages
-    socketBob.on('message', function (msg, rinfo) {
-      expect(msg.toString()).to.equal(testData)
-      winston.debug('[libstun] receiving test message ' + msg)
-      messagesReceived++
-      if (messagesReceived === testRuns) {
-        socketBob.close()
-        done()
-      }
-    })
-
-    // open alice's socket ...
-    socketAlice.listenP()
+  it('should execute STUN bind operation using a specific dgram socket ', function () {
+    var udpSocket = dgram.createSocket('udp4')
+    var socket = new SrflxSocket(testAddr, testPort, udpSocket)
+    return socket.listenP()
       .then(function (localAddress) {
-        // and determine her public address (not really needed for this test, but it also doesn't hurt ...)
-        return socketAlice.bindP()
+        return socket.bindP()
       })
       .then(function (mappedAddress) {
-        addressAlice = mappedAddress
-        winston.debug("[libstun] alice's srflx address = " + addressAlice.address + ':' + addressAlice.port)
-        // open bob's socket ...
-        return socketBob.listenP()
-      })
-      .then(function (localAddress) {
-        // and determine his public address
-        return socketBob.bindP()
-      })
-      .then(function (mappedAddress) {
-        addressBob = mappedAddress
-        winston.debug("[libstun] bob's srflx address = " + addressBob.address + ':' + addressBob.port)
-        // send test message n times
-        for (var i = 0; i < testRuns; i++) {
-          socketAlice.sendData(
-            testData,
-            addressBob.address,
-            addressBob.port,
-            function () { // on success
-              winston.debug('[libstun] test message sent to ' + addressBob.address + ':' + addressBob.port)
-            },
-            function (error) { // on failure
-              done(error)
-            }
-          )
-        }
+        expect(mappedAddress).not.to.be.undefined
+        expect(mappedAddress).to.have.property('address')
+        expect(mappedAddress).to.have.property('port')
+      // expect(mappedAddress.address).to.equal(testGW)
       })
   })
+
+  it('should execute STUN bind operation using a specific chrome-dgram socket ', function () {
+    var udpSocket = dgram.createSocket('udp4')
+    var socket = new SrflxSocket(testAddr, testPort, udpSocket)
+    return socket.listenP()
+      .then(function (localAddress) {
+        return socket.bindP()
+      })
+      .then(function (mappedAddress) {
+        expect(mappedAddress).not.to.be.undefined
+        expect(mappedAddress).to.have.property('address')
+        expect(mappedAddress).to.have.property('port')
+      // expect(mappedAddress.address).to.equal(testGW)
+      })
+  })
+
+  // it('should receive messages that are sent to a srflx address', function (done) {
+  //   var testData = 'hello there'
+  //   var testRuns = 1
+  //   var messagesReceived = 0
+  //
+  //   var socketAlice = new SrflxSocket(testAddr, testPort)
+  //   var socketBob = new SrflxSocket(testAddr, testPort)
+  //   var addressAlice, addressBob
+  //
+  //   // subscribe to incoming messages
+  //   socketBob.on('message', function (msg, rinfo) {
+  //     expect(msg.toString()).to.equal(testData)
+  //     winston.debug('[libstun] receiving test message ' + msg)
+  //     messagesReceived++
+  //     if (messagesReceived === testRuns) {
+  //       socketBob.close()
+  //       done()
+  //     }
+  //   })
+  //
+  //   // open alice's socket ...
+  //   socketAlice.listenP()
+  //     .then(function (localAddress) {
+  //       // and determine her public address (not really needed for this test, but it also doesn't hurt ...)
+  //       return socketAlice.bindP()
+  //     })
+  //     .then(function (mappedAddress) {
+  //       addressAlice = mappedAddress
+  //       winston.debug("[libstun] alice's srflx address = " + addressAlice.address + ':' + addressAlice.port)
+  //       // open bob's socket ...
+  //       return socketBob.listenP()
+  //     })
+  //     .then(function (localAddress) {
+  //       // and determine his public address
+  //       return socketBob.bindP()
+  //     })
+  //     .then(function (mappedAddress) {
+  //       addressBob = mappedAddress
+  //       winston.debug("[libstun] bob's srflx address = " + addressBob.address + ':' + addressBob.port)
+  //       // send test message n times
+  //       for (var i = 0; i < testRuns; i++) {
+  //         socketAlice.sendData(
+  //           testData,
+  //           addressBob.address,
+  //           addressBob.port,
+  //           function () { // on success
+  //             winston.debug('[libstun] test message sent to ' + addressBob.address + ':' + addressBob.port)
+  //           },
+  //           function (error) { // on failure
+  //             done(error)
+  //           }
+  //         )
+  //       }
+  //     })
+  // })
 })
