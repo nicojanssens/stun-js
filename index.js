@@ -6,8 +6,8 @@ var StunSocket = require('./src/stun_socket')
 var address = require('./src/attributes/address')
 var padding = require('./src/attributes/padding')
 
-module.exports = function createSocket (address, port) {
-  return new SrflxSocket(address, port)
+module.exports = function createSocket (address, port, udpSocket) {
+  return new SrflxSocket(address, port, udpSocket)
 }
 
 // STUN components
