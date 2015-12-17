@@ -30,6 +30,18 @@ var StunSocket = function (stunHost, stunPort) {
 util.inherits(StunSocket, events.EventEmitter)
 
 // Open socket
+StunSocket.prototype.listenP = function (args) {
+  var deferred = Q.defer()
+  args = args | {}
+  var self = this
+  this._socket.bind(args.address, args.port, function () {
+    var listeningAddress = self._socket.address()
+    winston.debug('[libstun] socket listening ' + listeningAddress.address + ':' + listeningAddress.port)
+    deferred.resolve(listeningAddress)
+  })
+  return deferred.promise
+}
+
 StunSocket.prototype.listen = function (args, onSuccess, onFailure) {
   args = args | {}
   if (onSuccess === undefined || onFailure === undefined) {
@@ -46,18 +58,6 @@ StunSocket.prototype.listen = function (args, onSuccess, onFailure) {
     })
 }
 
-StunSocket.prototype.listenP = function (args) {
-  var deferred = Q.defer()
-  args = args | {}
-  var self = this
-  this._socket.bind(args.address, args.port, function () {
-    var listeningAddress = self._socket.address()
-    winston.debug('[libstun] socket listening ' + listeningAddress.address + ':' + listeningAddress.port)
-    deferred.resolve(listeningAddress)
-  })
-  return deferred.promise
-}
-
 // Close socket
 StunSocket.prototype.close = function () {
   var listeningAddress = this._socket.address()
@@ -68,6 +68,30 @@ StunSocket.prototype.close = function () {
 /** UDP communication */
 
 // Send STUN request
+StunSocket.prototype.sendStunRequestP = function (message) {
+  var deferred = Q.defer()
+  // get tid
+  var tid = message.readUInt32BE(16)
+  // store response handler for this tid
+  var onResponse = function (stunPacket) {
+    deferred.resolve(stunPacket)
+  }
+  this._responseCallbacks[tid] = onResponse
+  // send bytes
+  this.send(
+    message,
+    this._stunHost,
+    this._stunPort,
+    function () { // on success
+      // do nothing
+    },
+    function (error) { // on failure
+      deferred.reject(error)
+    }
+  )
+  return deferred.promise
+}
+
 StunSocket.prototype.sendStunRequest = function (message, onSuccess, onFailure) {
   this.sendStunRequestP(message)
     .then(function (result) {
@@ -78,27 +102,17 @@ StunSocket.prototype.sendStunRequest = function (message, onSuccess, onFailure) 
     })
 }
 
-StunSocket.prototype.sendStunRequestP = function (message) {
-  var deferred = Q.defer()
-  // get tid
-  var tid = message.readUInt32BE(16)
-  // store response handler for this tid
-  var onResponse = function (stunPacket) {
-    deferred.resolve(stunPacket)
-  }
-  this._responseCallbacks[tid] = onResponse
-  // send message
-  this.send(message, this._stunPort, this._stunHost, function (error) {
-    // and complain if something went wrong
-    if (error) {
-      deferred.reject(error)
-    }
-  })
-  return deferred.promise
+// Send STUN indication
+StunSocket.prototype.sendStunIndicationP = function (message) {
+  return this.sendP(message, this._stunHost, this._stunPort)
 }
 
-// Send STUN indication
 StunSocket.prototype.sendStunIndication = function (message, onSuccess, onFailure) {
+  if (onSuccess === undefined || onFailure === undefined) {
+    var error = '[libstun] send stun indication callback handlers are undefined'
+    winston.error(error)
+    throw new Error(error)
+  }
   this.sendStunIndicationP(message)
     .then(function (result) {
       onSuccess(result)
@@ -108,11 +122,14 @@ StunSocket.prototype.sendStunIndication = function (message, onSuccess, onFailur
     })
 }
 
-StunSocket.prototype.sendStunIndicationP = function (message) {
+// Send bytes
+StunSocket.prototype.sendP = function (bytes, host, port) {
   var deferred = Q.defer()
-  this.send(message, this._stunPort, this._stunHost, function (error) {
+  this._socket.send(bytes, 0, bytes.length, port, host, function (error) {
     if (error) {
-      deferred.reject(error)
+      var errorMsg = '[libstun] could not send bytes to ' + host + ':' + port + '. ' + error
+      winston.error(errorMsg)
+      deferred.reject(errorMsg)
     } else {
       deferred.resolve()
     }
@@ -120,8 +137,19 @@ StunSocket.prototype.sendStunIndicationP = function (message) {
   return deferred.promise
 }
 
-StunSocket.prototype.send = function (message, port, host, cb) {
-  this._socket.send(message, 0, message.length, port, host, cb)
+StunSocket.prototype.send = function (bytes, host, port, onSuccess, onFailure) {
+  if (onSuccess === undefined || onFailure === undefined) {
+    var error = '[libstun] send bytes callback handlers are undefined'
+    winston.error(error)
+    throw new Error(error)
+  }
+  this.sendP(bytes, host, port)
+    .then(function () {
+      onSuccess()
+    })
+    .catch(function (error) {
+      onFailure(error)
+    })
 }
 
 // Incoming message handler
@@ -175,7 +203,7 @@ StunSocket.prototype.onIncomingStunIndication = function (stunPacket, rinfo) {
 
 // Incoming message that is different from regular STUN packets
 StunSocket.prototype.onOtherIncomingMessage = function (msg, rinfo) {
-  this.emit('message', msg, rinfo)
+  this.emit('message', msg.toString(), rinfo)
 }
 
 // Error handler

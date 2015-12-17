@@ -102,16 +102,26 @@ SrflxSocket.prototype.sendBindIndication = function (onSuccess, onFailure) {
     })
 }
 
-// Send data to server reflexive address
-SrflxSocket.prototype.sendData = function (data, host, port, onSuccess, onFailure) {
-  var message = new Buffer(data)
-  this.send(message, port, host, function (error) {
-    if (error) {
-      onFailure(error)
-    } else {
+// Send data to destination
+SrflxSocket.prototype.sendDataP = function (args) {
+  var message = new Buffer(args.data)
+  return this.sendP(message, args.address, args.port)
+}
+
+SrflxSocket.prototype.sendData = function (args, onSuccess, onFailure) {
+  winston.debug('[libturn] send data')
+  if (onSuccess === undefined || onFailure === undefined) {
+    var error = '[libstun] send data callback handlers are undefined'
+    winston.error(error)
+    throw new Error(error)
+  }
+  this.sendDataP(args)
+    .then(function () {
       onSuccess()
-    }
-  })
+    })
+    .catch(function (error) {
+      onFailure(error)
+    })
 }
 
 /** Message composition */
