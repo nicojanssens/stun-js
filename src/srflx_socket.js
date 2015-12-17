@@ -7,8 +7,8 @@ var Packet = require('./packet')
 var StunSocket = require('./stun_socket')
 
 // Constructor
-var SrflxSocket = function (stunHost, stunPort) {
-  StunSocket.call(this, stunHost, stunPort)
+var SrflxSocket = function (stunHost, stunPort, udpSocket) {
+  StunSocket.call(this, stunHost, stunPort, udpSocket)
 }
 
 // Inherit from StunSocket
