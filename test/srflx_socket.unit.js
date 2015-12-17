@@ -1,4 +1,3 @@
-var chromeDgram = require('chrome-dgram')
 var dgram = require('dgram')
 var SrflxSocket = require('../src/srflx_socket')
 var winston = require('winston')
@@ -78,21 +77,6 @@ describe('#STUN operations', function () {
 
   it('should execute STUN bind operation using a specific dgram socket (using promises)', function () {
     var udpSocket = dgram.createSocket('udp4')
-    var socket = new SrflxSocket(testAddr, testPort, udpSocket)
-    return socket.listenP()
-      .then(function (localAddress) {
-        return socket.bindP()
-      })
-      .then(function (mappedAddress) {
-        expect(mappedAddress).not.to.be.undefined
-        expect(mappedAddress).to.have.property('address')
-        expect(mappedAddress).to.have.property('port')
-      // expect(mappedAddress.address).to.equal(testGW)
-      })
-  })
-
-  it('should execute STUN bind operation using a specific chrome-dgram socket (using promises)', function () {
-    var udpSocket = chromeDgram.createSocket('udp4')
     var socket = new SrflxSocket(testAddr, testPort, udpSocket)
     return socket.listenP()
       .then(function (localAddress) {
