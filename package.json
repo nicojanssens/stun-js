@@ -21,6 +21,7 @@
   "devDependencies": {
     "chai": "*",
     "chai-as-promised": "*",
+    "chrome-dgram": "*",
     "mocha": "*",
     "yargs": "*"
   },
