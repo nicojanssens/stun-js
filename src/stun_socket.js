@@ -7,7 +7,7 @@ var winston = require('winston')
 var Packet = require('./packet')
 
 // Init socket object
-var StunSocket = function (stunHost, stunPort) {
+var StunSocket = function (stunHost, stunPort, udpSocket) {
   if (stunPort === undefined || stunHost === undefined) {
     var error = '[libstun] invalid socket params'
     winston.error(error)
@@ -20,7 +20,7 @@ var StunSocket = function (stunHost, stunPort) {
 
   events.EventEmitter.call(this)
 
-  var socket = dgram.createSocket('udp4')
+  var socket = (udpSocket === undefined)? dgram.createSocket('udp4'): udpSocket
   this._socket = socket
   socket.on('message', this.onIncomingMessage())
   socket.on('error', this.onFailure())
