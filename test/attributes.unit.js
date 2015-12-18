@@ -106,7 +106,7 @@ describe('#STUN attributes', function () {
   })
 
   it('should encode and decode a software attribute', function (done) {
-    var testDescription = 'my awsome product'
+    var testDescription = 'my awesome product'
     var Software = Attributes.Software
     var software = new Software(testDescription)
     var bytes = software.encode()
