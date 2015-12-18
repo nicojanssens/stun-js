@@ -90,59 +90,61 @@ describe('#STUN operations', function () {
       })
   })
 
-  // it('should receive messages that are sent to a srflx address', function (done) {
-  //   var testData = 'hello there'
-  //   var testRuns = 1
-  //   var messagesReceived = 0
-  //
-  //   var socketAlice = new SrflxSocket(testAddr, testPort)
-  //   var socketBob = new SrflxSocket(testAddr, testPort)
-  //   var addressAlice, addressBob
-  //
-  //   // subscribe to incoming messages
-  //   socketBob.on('message', function (msg, rinfo) {
-  //     expect(msg.toString()).to.equal(testData)
-  //     winston.debug('[libstun] receiving test message ' + msg)
-  //     messagesReceived++
-  //     if (messagesReceived === testRuns) {
-  //       socketBob.close()
-  //       done()
-  //     }
-  //   })
-  //
-  //   // open alice's socket ...
-  //   socketAlice.listenP()
-  //     .then(function (localAddress) {
-  //       // and determine her public address (not really needed for this test, but it also doesn't hurt ...)
-  //       return socketAlice.bindP()
-  //     })
-  //     .then(function (mappedAddress) {
-  //       addressAlice = mappedAddress
-  //       winston.debug("[libstun] alice's srflx address = " + addressAlice.address + ':' + addressAlice.port)
-  //       // open bob's socket ...
-  //       return socketBob.listenP()
-  //     })
-  //     .then(function (localAddress) {
-  //       // and determine his public address
-  //       return socketBob.bindP()
-  //     })
-  //     .then(function (mappedAddress) {
-  //       addressBob = mappedAddress
-  //       winston.debug("[libstun] bob's srflx address = " + addressBob.address + ':' + addressBob.port)
-  //       // send test message n times
-  //       for (var i = 0; i < testRuns; i++) {
-  //         socketAlice.sendData(
-  //           testData,
-  //           addressBob.address,
-  //           addressBob.port,
-  //           function () { // on success
-  //             winston.debug('[libstun] test message sent to ' + addressBob.address + ':' + addressBob.port)
-  //           },
-  //           function (error) { // on failure
-  //             done(error)
-  //           }
-  //         )
-  //       }
-  //     })
-  // })
+  it('should receive messages that are sent to a srflx address', function (done) {
+    var testData = 'hello there'
+    var testRuns = 1
+    var messagesReceived = 0
+
+    var socketAlice = new SrflxSocket(testAddr, testPort)
+    var socketBob = new SrflxSocket(testAddr, testPort)
+    var addressAlice, addressBob
+
+    // subscribe to incoming messages
+    socketBob.on('message', function (bytes, rinfo) {
+      var message = bytes.toString()
+      expect(message).to.equal(testData)
+      winston.debug('[libstun] receiving test message ' + message)
+      messagesReceived++
+      if (messagesReceived === testRuns) {
+        socketBob.close()
+        done()
+      }
+    })
+
+    // open alice's socket ...
+    socketAlice.listenP()
+      .then(function (localAddress) {
+        // and determine her public address (not really needed for this test, but it also doesn't hurt ...)
+        return socketAlice.bindP()
+      })
+      .then(function (mappedAddress) {
+        addressAlice = mappedAddress
+        winston.debug("[libstun] alice's srflx address = " + addressAlice.address + ':' + addressAlice.port)
+        // open bob's socket ...
+        return socketBob.listenP()
+      })
+      .then(function (localAddress) {
+        // and determine his public address
+        return socketBob.bindP()
+      })
+      .then(function (mappedAddress) {
+        addressBob = mappedAddress
+        winston.debug("[libstun] bob's srflx address = " + addressBob.address + ':' + addressBob.port)
+        // send test message n times
+        for (var i = 0; i < testRuns; i++) {
+          var bytes = new Buffer(testData)
+          socketAlice.send(
+            bytes,
+            addressBob.address,
+            addressBob.port,
+            function () { // on success
+              winston.debug('[libstun] test message sent to ' + addressBob.address + ':' + addressBob.port)
+            },
+            function (error) { // on failure
+              done(error)
+            }
+          )
+        }
+      })
+  })
 })

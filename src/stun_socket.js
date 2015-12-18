@@ -20,7 +20,7 @@ var StunSocket = function (stunHost, stunPort, udpSocket) {
 
   events.EventEmitter.call(this)
 
-  var socket = (udpSocket === undefined)? dgram.createSocket('udp4'): udpSocket
+  var socket = (udpSocket === undefined) ? dgram.createSocket('udp4') : udpSocket
   this._socket = socket
   socket.on('message', this.onIncomingMessage())
   socket.on('error', this.onFailure())
@@ -155,11 +155,11 @@ StunSocket.prototype.send = function (bytes, host, port, onSuccess, onFailure) {
 // Incoming message handler
 StunSocket.prototype.onIncomingMessage = function () {
   var self = this
-  return function (msg, rinfo) {
+  return function (bytes, rinfo) {
     winston.debug('[libstun] receiving message from ' + JSON.stringify(rinfo))
 
     // this is a stun packet
-    var stunPacket = Packet.decode(msg)
+    var stunPacket = Packet.decode(bytes)
     if (stunPacket) {
       switch (stunPacket.type) {
         case Packet.TYPE.SUCCESS_RESPONSE:
@@ -177,7 +177,7 @@ StunSocket.prototype.onIncomingMessage = function () {
           throw new Error(errorMsg)
       }
     } else {
-      self.onOtherIncomingMessage(msg, rinfo)
+      self.onOtherIncomingMessage(bytes, rinfo)
     }
   }
 }
@@ -202,8 +202,8 @@ StunSocket.prototype.onIncomingStunIndication = function (stunPacket, rinfo) {
 }
 
 // Incoming message that is different from regular STUN packets
-StunSocket.prototype.onOtherIncomingMessage = function (msg, rinfo) {
-  this.emit('message', msg.toString(), rinfo)
+StunSocket.prototype.onOtherIncomingMessage = function (bytes, rinfo) {
+  this.emit('message', bytes, rinfo)
 }
 
 // Error handler
