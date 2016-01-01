@@ -15,7 +15,7 @@ UnknownAttributesAttr.decode = function (attrBytes) {
   var offset = 0
 
   while (offset < attrBytes.length) {
-    unknownAttrs.push(attrBytes.readUInt16BE(offset))
+    unknownAttrs.push(attrBytes.readUInt16BE(offset).toString(16))
     offset += 2
   }
 
