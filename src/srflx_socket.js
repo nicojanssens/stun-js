@@ -23,7 +23,7 @@ SrflxSocket.prototype.bindP = function () {
       var errorCode = bindReply.getAttribute(Attributes.ERROR_CODE)
       // check if the reply includes an error code attr
       if (errorCode) {
-        throw new Error('[libstun] bind error: ' + errorCode.reason)
+        throw new Error('[stun-js] bind error: ' + errorCode.reason)
       }
       var mappedAddressAttr = bindReply.getAttribute(Attributes.XOR_MAPPED_ADDRESS)
       if (!mappedAddressAttr) {
@@ -41,7 +41,7 @@ SrflxSocket.prototype.bindP = function () {
 
 SrflxSocket.prototype.bind = function (onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[libstun] bind callback handlers are undefined'
+    var error = '[stun-js] bind callback handlers are undefined'
     winston.error(error)
     throw new Error(error)
   }
@@ -58,15 +58,15 @@ SrflxSocket.prototype.bind = function (onSuccess, onFailure) {
 
 // Send STUN bind request
 SrflxSocket.prototype.sendBindRequestP = function () {
-  winston.debug('[libstun] send bind request (using promises)')
+  winston.debug('[stun-js] send bind request (using promises)')
   var message = composeBindRequest()
   return this.sendStunRequestP(message)
 }
 
 SrflxSocket.prototype.sendBindRequest = function (onSuccess, onFailure) {
-  winston.debug('[libstun] send bind request')
+  winston.debug('[stun-js] send bind request')
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[libstun] send bind request callback handlers are undefined'
+    var error = '[stun-js] send bind request callback handlers are undefined'
     winston.error(error)
     throw new Error(error)
   }
@@ -81,15 +81,15 @@ SrflxSocket.prototype.sendBindRequest = function (onSuccess, onFailure) {
 
 // Send STUN bind indication
 SrflxSocket.prototype.sendBindIndicationP = function () {
-  winston.debug('[libstun] send bind indication (using promises)')
+  winston.debug('[stun-js] send bind indication (using promises)')
   var message = composeBindIndication()
   return this.sendStunIndicationP(message)
 }
 
 SrflxSocket.prototype.sendBindIndication = function (onSuccess, onFailure) {
-  winston.debug('[libstun] send bind indication')
+  winston.debug('[stun-js] send bind indication')
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[libstun] send bind indication callback handlers are undefined'
+    var error = '[stun-js] send bind indication callback handlers are undefined'
     winston.error(error)
     throw new Error(error)
   }

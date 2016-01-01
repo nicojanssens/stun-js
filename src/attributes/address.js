@@ -12,17 +12,17 @@ var IPv6 = 0x02
 function encode (address, port) {
   // checks
   if (address === undefined || port === undefined) {
-    var attrError = '[libstun] invalid address attribute'
+    var attrError = '[stun-js] invalid address attribute'
     winston.error(attrError)
     throw new Error(attrError)
   }
   if (!ip.isV4Format(address) && !ip.isV6Format(address)) {
-    var hostError = '[libstun] invalid address host'
+    var hostError = '[stun-js] invalid address host'
     winston.error(hostError)
     throw new Error(hostError)
   }
   if (port < 0 || port > 65536) {
-    var portError = '[libstun] invalid address port'
+    var portError = '[stun-js] invalid address port'
     winston.error(portError)
     throw new Error(portError)
   }
@@ -44,22 +44,22 @@ function encode (address, port) {
 function encodeXor (address, port, magic, tid) {
   // checks
   if (address === undefined || port === undefined) {
-    var attrError = '[libstun] invalid address attribute'
+    var attrError = '[stun-js] invalid address attribute'
     winston.error(attrError)
     throw new Error(attrError)
   }
   if (!ip.isV4Format(address) && !ip.isV6Format(address)) {
-    var hostError = '[libstun] invalid address host'
+    var hostError = '[stun-js] invalid address host'
     winston.error(hostError)
     throw new Error(hostError)
   }
   if (port < 0 || port > 65536) {
-    var portError = '[libstun] invalid address port'
+    var portError = '[stun-js] invalid address port'
     winston.error(portError)
     throw new Error(portError)
   }
   if (magic === undefined || tid === undefined) {
-    var keyError = '[libstun] invalid xor keys'
+    var keyError = '[stun-js] invalid xor keys'
     winston.error(keyError)
     throw new Error(keyError)
   }

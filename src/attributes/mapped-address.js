@@ -3,7 +3,7 @@ var winston = require('winston')
 
 var MappedAddressAttr = function (address, port) {
   if (address === undefined || port === undefined) {
-    var error = '[libstun] invalid mapped address attribute'
+    var error = '[stun-js] invalid mapped address attribute'
     winston.error(error)
     throw new Error('error')
   }
@@ -11,7 +11,7 @@ var MappedAddressAttr = function (address, port) {
   this.port = port
   this.type = 0x0001
 
-  winston.debug('[libstun] mapped address = ' + this.address + ', port = ' + this.port)
+  winston.debug('[stun-js] mapped address = ' + this.address + ', port = ' + this.port)
 }
 
 MappedAddressAttr.prototype.encode = function () {

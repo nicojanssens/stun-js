@@ -3,13 +3,13 @@ var winston = require('winston')
 
 var RealmAttr = function (value) {
   if (value === undefined || value === '') {
-    var error = '[libstun] invalid realm attribute'
+    var error = '[stun-js] invalid realm attribute'
     winston.error(error)
     throw new Error(error)
   }
   this.value = value
   this.type = 0x0014
-  winston.debug('[libstun] realm attr: ' + this.value)
+  winston.debug('[stun-js] realm attr: ' + this.value)
 }
 
 RealmAttr.prototype.encode = function () {
@@ -19,7 +19,7 @@ RealmAttr.prototype.encode = function () {
   // value
   var valueBytes = new Buffer(this.value)
   if (this.value.length >= 128 || valueBytes.length >= 764) {
-    throw new Error('[libstun] invalid realm attribute')
+    throw new Error('[stun-js] invalid realm attribute')
   }
   // length
   var lengthBytes = new Buffer(2)
@@ -35,7 +35,7 @@ RealmAttr.prototype.encode = function () {
 RealmAttr.decode = function (attrBytes) {
   var value = attrBytes.toString()
   if (attrBytes.length >= 764 || value.length >= 128) {
-    throw new Error('[libstun] invalid realm attribute')
+    throw new Error('[stun-js] invalid realm attribute')
   }
   return new RealmAttr(value)
 }

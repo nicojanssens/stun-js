@@ -3,18 +3,18 @@ var winston = require('winston')
 
 var ErrorCodeAttr = function (code, reason) {
   if (code === undefined) {
-    var undefinedCodeError = '[libstun] invalid error code attribute'
+    var undefinedCodeError = '[stun-js] invalid error code attribute'
     winston.error(undefinedCodeError)
     throw new Error(undefinedCodeError)
   }
   if (code < 300 || code >= 700) {
-    var invalidCodeError = '[libstun] invalid error code'
+    var invalidCodeError = '[stun-js] invalid error code'
     winston.error(invalidCodeError)
     return new Error(invalidCodeError)
   }
   reason = reason || ErrorCodeAttr.REASON[code]
   if (reason.length >= 128) {
-    var invalidReasonError = '[libstun] invalid error reason'
+    var invalidReasonError = '[stun-js] invalid error reason'
     winston.error(invalidReasonError)
     return new Error(invalidReasonError)
   }
@@ -22,7 +22,7 @@ var ErrorCodeAttr = function (code, reason) {
   this.reason = reason
   this.type = 0x0009
 
-  winston.debug('[libstun] error code attr: code = ' + this.code + ', reason = ' + this.reason)
+  winston.debug('[stun-js] error code attr: code = ' + this.code + ', reason = ' + this.reason)
 }
 
 // error codes
@@ -67,10 +67,10 @@ ErrorCodeAttr.decode = function (attrBytes) {
   var reason = attrBytes.toString('utf8', 4)
 
   if (reason.length >= 128) {
-    throw new Error('[libstun] invalid error code')
+    throw new Error('[stun-js] invalid error code')
   }
   if (code < 300 || code >= 700) {
-    throw new Error('[libstun] invalid error code')
+    throw new Error('[stun-js] invalid error code')
   }
 
   return new ErrorCodeAttr(code, reason)

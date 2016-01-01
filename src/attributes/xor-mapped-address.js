@@ -3,7 +3,7 @@ var winston = require('winston')
 
 var XORMappedAddressAttr = function (address, port) {
   if (address === undefined || port === undefined) {
-    var error = '[libstun] invalid xor mapped address attribute'
+    var error = '[stun-js] invalid xor mapped address attribute'
     winston.error(error)
     throw new Error(error)
   }
@@ -11,12 +11,12 @@ var XORMappedAddressAttr = function (address, port) {
   this.port = port
   this.type = 0x0020
 
-  winston.debug('[libstun] xor mapped address attr: ' + this.address + ':' + this.port)
+  winston.debug('[stun-js] xor mapped address attr: ' + this.address + ':' + this.port)
 }
 
 XORMappedAddressAttr.prototype.encode = function (magic, tid) {
   if (magic === undefined || tid === undefined) {
-    var error = '[libstun] invalid xorMappedAddressAttr.encode params'
+    var error = '[stun-js] invalid xorMappedAddressAttr.encode params'
     winston.error(error)
     throw new Error(error)
   }

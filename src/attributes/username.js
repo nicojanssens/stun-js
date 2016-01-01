@@ -3,13 +3,13 @@ var winston = require('winston')
 
 var UsernameAttr = function (name) {
   if (name === undefined) {
-    var error = '[libstun] invalid username attribute'
+    var error = '[stun-js] invalid username attribute'
     winston.error(error)
     throw new Error(error)
   }
   this.name = name
   this.type = 0x0006
-  winston.debug('[libstun] username attr: ' + this.name)
+  winston.debug('[stun-js] username attr: ' + this.name)
 }
 
 UsernameAttr.prototype.encode = function () {
@@ -19,7 +19,7 @@ UsernameAttr.prototype.encode = function () {
   // value
   var valueBytes = new Buffer(this.name)
   if (valueBytes.length > 512) {
-    throw new Error('[libstun] invalid username attribute')
+    throw new Error('[stun-js] invalid username attribute')
   }
   // length
   var lengthBytes = new Buffer(2)
@@ -34,7 +34,7 @@ UsernameAttr.prototype.encode = function () {
 
 UsernameAttr.decode = function (attrBytes) {
   if (attrBytes.length > 512) {
-    throw new Error('[libstun] invalid username')
+    throw new Error('[stun-js] invalid username')
   }
   var name = attrBytes.toString()
   return new UsernameAttr(name)

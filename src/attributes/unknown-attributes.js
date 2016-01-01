@@ -3,11 +3,11 @@ var winston = require('winston')
 var UnknownAttributesAttr = function (value) {
   this.value = value
   this.type = 0x000A
-  winston.debug('[libstun] unknown attributes attr: ' + JSON.stringify(this.value))
+  winston.debug('[stun-js] unknown attributes attr: ' + JSON.stringify(this.value))
 }
 
 UnknownAttributesAttr.prototype.encode = function () {
-  throw new Error('[libstun] unknown-attributes.encode not implemented yet')
+  throw new Error('[stun-js] unknown-attributes.encode not implemented yet')
 }
 
 UnknownAttributesAttr.decode = function (attrBytes) {

@@ -9,7 +9,7 @@ var Packet = require('./packet')
 // Init socket object
 var StunSocket = function (stunHost, stunPort, udpSocket) {
   if (stunPort === undefined || stunHost === undefined) {
-    var error = '[libstun] invalid socket params'
+    var error = '[stun-js] invalid socket params'
     winston.error(error)
     throw new Error(error)
   }
@@ -36,7 +36,7 @@ StunSocket.prototype.listenP = function (args) {
   var self = this
   this._socket.bind(args.address, args.port, function () {
     var listeningAddress = self._socket.address()
-    winston.debug('[libstun] socket listening ' + listeningAddress.address + ':' + listeningAddress.port)
+    winston.debug('[stun-js] socket listening ' + listeningAddress.address + ':' + listeningAddress.port)
     deferred.resolve(listeningAddress)
   })
   return deferred.promise
@@ -45,7 +45,7 @@ StunSocket.prototype.listenP = function (args) {
 StunSocket.prototype.listen = function (args, onSuccess, onFailure) {
   args = args | {}
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[libstun] listen callback handlers are undefined'
+    var error = '[stun-js] listen callback handlers are undefined'
     winston.error(error)
     throw new Error(error)
   }
@@ -61,7 +61,7 @@ StunSocket.prototype.listen = function (args, onSuccess, onFailure) {
 // Close socket
 StunSocket.prototype.close = function () {
   var listeningAddress = this._socket.address()
-  winston.debug('[libstun] closing socket ' + listeningAddress.address + ':' + listeningAddress.port)
+  winston.debug('[stun-js] closing socket ' + listeningAddress.address + ':' + listeningAddress.port)
   this._socket.close()
 }
 
@@ -109,7 +109,7 @@ StunSocket.prototype.sendStunIndicationP = function (bytes) {
 
 StunSocket.prototype.sendStunIndication = function (bytes, onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[libstun] send stun indication callback handlers are undefined'
+    var error = '[stun-js] send stun indication callback handlers are undefined'
     winston.error(error)
     throw new Error(error)
   }
@@ -127,7 +127,7 @@ StunSocket.prototype.sendP = function (bytes, host, port) {
   var deferred = Q.defer()
   this._socket.send(bytes, 0, bytes.length, port, host, function (error) {
     if (error) {
-      var errorMsg = '[libstun] could not send bytes to ' + host + ':' + port + '. ' + error
+      var errorMsg = '[stun-js] could not send bytes to ' + host + ':' + port + '. ' + error
       winston.error(errorMsg)
       deferred.reject(errorMsg)
     } else {
@@ -139,7 +139,7 @@ StunSocket.prototype.sendP = function (bytes, host, port) {
 
 StunSocket.prototype.send = function (bytes, host, port, onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[libstun] send bytes callback handlers are undefined'
+    var error = '[stun-js] send bytes callback handlers are undefined'
     winston.error(error)
     throw new Error(error)
   }
@@ -156,7 +156,7 @@ StunSocket.prototype.send = function (bytes, host, port, onSuccess, onFailure) {
 StunSocket.prototype.onIncomingMessage = function () {
   var self = this
   return function (bytes, rinfo) {
-    winston.debug('[libstun] receiving message from ' + JSON.stringify(rinfo))
+    winston.debug('[stun-js] receiving message from ' + JSON.stringify(rinfo))
 
     // this is a stun packet
     var stunPacket = Packet.decode(bytes)
@@ -172,7 +172,7 @@ StunSocket.prototype.onIncomingMessage = function () {
           self.onIncomingStunIndication(stunPacket, rinfo)
           break
         default:
-          var errorMsg = "[libstun] don't know how to process incoming STUN message -- dropping it on the floor"
+          var errorMsg = "[stun-js] don't know how to process incoming STUN message -- dropping it on the floor"
           winston.error(errorMsg)
           throw new Error(errorMsg)
       }
@@ -190,7 +190,7 @@ StunSocket.prototype.onIncomingStunResponse = function (stunPacket, rinfo) {
     onResponseCallback(stunPacket)
     delete this._responseCallbacks[stunPacket.tid]
   } else {
-    var errorMsg = '[libstun] no handler available to process response with tid ' + stunPacket.tid
+    var errorMsg = '[stun-js] no handler available to process response with tid ' + stunPacket.tid
     winston.error(errorMsg)
     throw new Error(errorMsg)
   }
@@ -209,7 +209,7 @@ StunSocket.prototype.onOtherIncomingMessage = function (bytes, rinfo) {
 // Error handler
 StunSocket.prototype.onFailure = function () {
   return function (error) {
-    var errorMsg = '[libstun] socket error: ' + error
+    var errorMsg = '[stun-js] socket error: ' + error
     winston.error(errorMsg)
     throw new Error(errorMsg)
   }

@@ -3,13 +3,13 @@ var winston = require('winston')
 
 var NonceAttr = function (value) {
   if (value === undefined) {
-    var error = '[libstun] invalid nonce attribute'
+    var error = '[stun-js] invalid nonce attribute'
     winston.error(error)
     throw new Error(error)
   }
   this.value = value
   this.type = 0x0015
-  winston.debug('[libstun] nonce attr: ' + this.value)
+  winston.debug('[stun-js] nonce attr: ' + this.value)
 }
 
 NonceAttr.prototype.encode = function () {
@@ -19,7 +19,7 @@ NonceAttr.prototype.encode = function () {
   // value
   var valueBytes = new Buffer(this.value)
   if (this.value.length >= 128 || valueBytes.length >= 764) {
-    throw new Error('[libstun] invalid nonce attribute')
+    throw new Error('[stun-js] invalid nonce attribute')
   }
   // length
   var lengthBytes = new Buffer(2)
@@ -35,7 +35,7 @@ NonceAttr.prototype.encode = function () {
 NonceAttr.decode = function (attrBytes) {
   var value = attrBytes.toString()
   if (attrBytes.length >= 764 || value.length >= 128) {
-    throw new Error('[libstun] invalid nonce attribute')
+    throw new Error('[stun-js] invalid nonce attribute')
   }
   return new NonceAttr(value)
 }

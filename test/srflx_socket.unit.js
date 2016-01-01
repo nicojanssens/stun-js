@@ -103,7 +103,7 @@ describe('#STUN operations', function () {
     socketBob.on('message', function (bytes, rinfo) {
       var message = bytes.toString()
       expect(message).to.equal(testData)
-      winston.debug('[libstun] receiving test message ' + message)
+      winston.debug('[stun-js] receiving test message ' + message)
       messagesReceived++
       if (messagesReceived === testRuns) {
         socketBob.close()
@@ -119,7 +119,7 @@ describe('#STUN operations', function () {
       })
       .then(function (mappedAddress) {
         addressAlice = mappedAddress
-        winston.debug("[libstun] alice's srflx address = " + addressAlice.address + ':' + addressAlice.port)
+        winston.debug("[stun-js] alice's srflx address = " + addressAlice.address + ':' + addressAlice.port)
         // open bob's socket ...
         return socketBob.listenP()
       })
@@ -129,7 +129,7 @@ describe('#STUN operations', function () {
       })
       .then(function (mappedAddress) {
         addressBob = mappedAddress
-        winston.debug("[libstun] bob's srflx address = " + addressBob.address + ':' + addressBob.port)
+        winston.debug("[stun-js] bob's srflx address = " + addressBob.address + ':' + addressBob.port)
         // send test message n times
         for (var i = 0; i < testRuns; i++) {
           var bytes = new Buffer(testData)
@@ -138,7 +138,7 @@ describe('#STUN operations', function () {
             addressBob.address,
             addressBob.port,
             function () { // on success
-              winston.debug('[libstun] test message sent to ' + addressBob.address + ':' + addressBob.port)
+              winston.debug('[stun-js] test message sent to ' + addressBob.address + ':' + addressBob.port)
             },
             function (error) { // on failure
               done(error)

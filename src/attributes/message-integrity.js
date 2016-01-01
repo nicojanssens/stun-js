@@ -4,7 +4,7 @@ var winston = require('winston')
 var MessageIntegrityAttr = function (request, hash) {
   if (request) {
     if (request.username === undefined || request.password === undefined) {
-      var error = '[libstun] invalid message integrity attribute'
+      var error = '[stun-js] invalid message integrity attribute'
       winston.error(error)
       throw new Error(error)
     }
@@ -12,12 +12,12 @@ var MessageIntegrityAttr = function (request, hash) {
   this.request = request
   this.hash = hash
   this.type = 0x0008
-  winston.debug('[libstun] message integrity attr: request = ' + JSON.stringify(this.request) + ', hash = ' + this.hash)
+  winston.debug('[stun-js] message integrity attr: request = ' + JSON.stringify(this.request) + ', hash = ' + this.hash)
 }
 
 MessageIntegrityAttr.prototype.encode = function (packetBytes) {
   if (packetBytes === undefined) {
-    var error = '[libstun] invalid MessageIntegrityAttr.encode attributes'
+    var error = '[stun-js] invalid MessageIntegrityAttr.encode attributes'
     winston.error(error)
     throw new Error(error)
   }
@@ -47,7 +47,7 @@ MessageIntegrityAttr.prototype.encode = function (packetBytes) {
 
 MessageIntegrityAttr.decode = function (attrBytes) {
   if (attrBytes.length !== 20) {
-    var error = '[libstun] invalid message integrity attribute'
+    var error = '[stun-js] invalid message integrity attribute'
     winston.error(error)
     throw new Error(error)
   }

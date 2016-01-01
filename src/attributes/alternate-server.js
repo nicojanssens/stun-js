@@ -3,7 +3,7 @@ var winston = require('winston')
 
 var AlternateServerAttr = function (address, port) {
   if (port === undefined || address === undefined) {
-    var error = '[libstun] invalid alternate server attribute'
+    var error = '[stun-js] invalid alternate server attribute'
     winston.error(error)
     throw new Error(error)
   }
@@ -11,7 +11,7 @@ var AlternateServerAttr = function (address, port) {
   this.port = port
   this.type = 0x8023
 
-  winston.debug('[libstun] alternate server attr: address = ' + this.address + ', port = ' + this.port)
+  winston.debug('[stun-js] alternate server attr: address = ' + this.address + ', port = ' + this.port)
 }
 
 AlternateServerAttr.prototype.encode = function () {

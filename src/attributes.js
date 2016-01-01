@@ -46,7 +46,7 @@ Attributes.TYPES[Attributes.ALTERNATE_SERVER] = Attributes.AlternateServer
 
 Attributes.prototype.add = function (attr) {
   if (typeof attr.encode !== 'function') {
-    throw new Error('[libstun] attribute ' + attr + ' does not contain required encoding function')
+    throw new Error('[stun-js] attribute ' + attr + ' does not contain required encoding function')
   }
   this.attrs.push(attr)
 }
@@ -95,7 +95,7 @@ Attributes.decode = function (attrsBuffer, headerBuffer) {
       var attr = decoder.decode(attrBytes, headerBuffer)
       attrs.add(attr)
     } else {
-      winston.debug("[libstun] don't know how to process attribute " + type.toString(16) + '. Ignoring ...')
+      winston.debug("[stun-js] don't know how to process attribute " + type.toString(16) + '. Ignoring ...')
     }
   }
 
