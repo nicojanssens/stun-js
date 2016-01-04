@@ -1,3 +1,5 @@
+'use strict'
+
 var inherits = require('util').inherits
 var Q = require('q')
 var winston = require('winston')

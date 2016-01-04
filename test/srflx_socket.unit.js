@@ -1,3 +1,5 @@
+'use strict'
+
 var dgram = require('dgram')
 var SrflxSocket = require('../src/srflx_socket')
 var winston = require('winston')

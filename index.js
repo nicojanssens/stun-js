@@ -1,3 +1,5 @@
+'use strict'
+
 var Attributes = require('./src/attributes')
 var Packet = require('./src/packet')
 var SrflxSocket = require('./src/srflx_socket')

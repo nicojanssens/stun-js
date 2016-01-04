@@ -1,3 +1,5 @@
+'use strict'
+
 exports.encode = encode
 exports.encodeXor = encodeXor
 exports.decode = decode

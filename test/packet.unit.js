@@ -1,3 +1,5 @@
+'use strict'
+
 var Packet = require('../src/packet')
 var winston = require('winston')
 

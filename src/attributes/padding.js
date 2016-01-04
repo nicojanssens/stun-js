@@ -1,3 +1,5 @@
+'use strict'
+
 exports.getBytes = getBytes
 
 var PADDING_VALUE = '0'

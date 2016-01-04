@@ -1,3 +1,5 @@
+'use strict'
+
 var dgram = require('dgram')
 var events = require('events')
 var util = require('util')
@@ -157,6 +159,7 @@ StunSocket.prototype.onIncomingMessage = function () {
   var self = this
   return function (bytes, rinfo) {
     winston.debug('[stun-js] receiving message from ' + JSON.stringify(rinfo))
+
 
     // this is a stun packet
     var stunPacket = Packet.decode(bytes)

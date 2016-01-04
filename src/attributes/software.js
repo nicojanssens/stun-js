@@ -1,3 +1,5 @@
+'use strict'
+
 var padding = require('./padding')
 var winston = require('winston')
 

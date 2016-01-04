@@ -1,3 +1,5 @@
+'use strict'
+
 var addressAttr = require('./address')
 var winston = require('winston')
 
