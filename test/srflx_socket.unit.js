@@ -40,10 +40,7 @@ describe('#STUN operations', function () {
 
   it('should execute STUN bind operation (using promises)', function () {
     var socket = new SrflxSocket(testAddr, testPort)
-    return socket.listenP()
-      .then(function (localAddress) {
-        return socket.bindP()
-      })
+    return socket.bindP()
       .then(function (mappedAddress) {
         expect(mappedAddress).not.to.be.undefined
         expect(mappedAddress).to.have.property('address')

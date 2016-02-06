@@ -6,17 +6,17 @@ var winston = require('winston')
 
 var Attributes = require('./attributes')
 var Packet = require('./packet')
-var StunSocket = require('./stun_socket')
+var StunClient = require('./stun_client')
 
 // Constructor
-var SrflxSocket = function (stunHost, stunPort, udpSocket) {
-  StunSocket.call(this, stunHost, stunPort, udpSocket)
+var SrflxSocket = function (stunHost, stunPort, transport) {
+  StunClient.call(this, stunHost, stunPort, transport)
 }
 
-// Inherit from StunSocket
-inherits(SrflxSocket, StunSocket)
+// Inherit from StunClient
+inherits(SrflxSocket, StunClient)
 
-/** StunSocket operations */
+/** StunClient operations */
 
 // Bind request
 SrflxSocket.prototype.bindP = function () {
