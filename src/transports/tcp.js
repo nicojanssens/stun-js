@@ -11,8 +11,16 @@ function TcpWrapper(host, port) {
 
 TcpWrapper.prototype.init = function () {
   this._client = net.createConnection(this._port, this._host)
-  this._client.on('error', this._onError())
-  this._client.on('data', this._onMessage())
+  this._client.on('error', this._onError)
+  var self = this
+  this._client.on('data', function(data) {
+    var rinfo = {}
+    rinfo.address = self._host
+    rinfo.port = parseInt(self._port)
+    rinfo.family = net.isIPv4(self._host)? 'IPv4': 'IPv6'
+    rinfo.size = data.length
+    self._onMessage(data, rinfo)
+  })
 }
 
 TcpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
