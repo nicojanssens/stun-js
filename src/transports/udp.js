@@ -4,18 +4,18 @@ var dgram = require('dgram')
 var Q = require('q')
 var winston = require('winston')
 
-function UdpWrapper(host, port, socket) {
-  this._host = host
-  this._port = port
-  this._socket = (socket === undefined)? dgram.createSocket('udp4') : socket
+function UdpWrapper(socket) {
+  this._socket = (socket === undefined)? dgram.createSocket('udp4'): socket
 }
 
-UdpWrapper.prototype.init = function () {
-  var self = this
+UdpWrapper.prototype.init = function (host, port) {
+  this._host = host
+  this._port = port
   // store original message and error listeners, if any
   this._messageListeners = this._socket.listeners('message')
   this._errorListeners = this._socket.listeners('error')
   // temp remove these listeners ...
+  var self = this
   this._messageListeners.forEach(function (callback) {
     self._socket.removeListener('message', callback)
   })
@@ -33,6 +33,7 @@ UdpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
     winston.error(error)
     throw new Error(error)
   }
+  console.log(this._host + ':' + this._port)
   this._socket.send(bytes, 0, bytes.length, this._port, this._host, function(error) {
     if (error) {
       onFailure(error)

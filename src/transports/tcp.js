@@ -4,12 +4,12 @@ var net = require('net')
 var Q = require('q')
 var winston = require('winston')
 
-function TcpWrapper(host, port) {
-  this._host = host
-  this._port = port
+function TcpWrapper() {
 }
 
-TcpWrapper.prototype.init = function () {
+TcpWrapper.prototype.init = function (host, port) {
+  this._host = host
+  this._port = port
   this._client = net.createConnection(this._port, this._host)
   this._client.on('error', this._onError)
   var self = this
