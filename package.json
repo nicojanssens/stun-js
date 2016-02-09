@@ -1,6 +1,6 @@
 {
   "name": "stun-js",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "STUN (Simple Traversal of UDP through NATs) library written entirely in JavaScript",
   "main": "index.js",
   "keywords": [
