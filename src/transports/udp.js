@@ -78,6 +78,8 @@ UdpWrapper.prototype.release = function () {
   })
   // and remove refs to these original listeners
   this._messageListeners = this._errorListeners = []
+  // finally drop ref to this socket
+  this._socket = null
 }
 
 UdpWrapper.prototype.onMessage = function (callback) {
