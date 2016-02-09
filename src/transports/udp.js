@@ -4,8 +4,8 @@ var dgram = require('dgram')
 var Q = require('q')
 var winston = require('winston')
 
-function UdpWrapper(socket) {
-  this._socket = (socket === undefined)? dgram.createSocket('udp4'): socket
+function UdpWrapper (socket) {
+  this._socket = (socket === undefined) ? dgram.createSocket('udp4') : socket
 }
 
 UdpWrapper.prototype.init = function (host, port) {
@@ -34,7 +34,7 @@ UdpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
     throw new Error(error)
   }
   console.log(this._host + ':' + this._port)
-  this._socket.send(bytes, 0, bytes.length, this._port, this._host, function(error) {
+  this._socket.send(bytes, 0, bytes.length, this._port, this._host, function (error) {
     if (error) {
       onFailure(error)
       return
@@ -48,10 +48,10 @@ UdpWrapper.prototype.sendP = function (bytes) {
   var self = this
   this.send(
     bytes,
-    function() { // on success
+    function () { // on success
       deferred.resolve()
     },
-    function(error) {
+    function (error) {
       var errorMsg = '[stun-js] udp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
       winston.error(errorMsg)
       deferred.reject(errorMsg)
@@ -80,12 +80,11 @@ UdpWrapper.prototype.release = function () {
   this._messageListeners = this._errorListeners = []
 }
 
-
-UdpWrapper.prototype.onMessage = function(callback) {
+UdpWrapper.prototype.onMessage = function (callback) {
   this._onMessage = callback
 }
 
-UdpWrapper.prototype.onError = function(callback) {
+UdpWrapper.prototype.onError = function (callback) {
   this._onError = callback
 }
 

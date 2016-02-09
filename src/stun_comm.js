@@ -58,10 +58,10 @@ StunComm.prototype.sendStunRequestP = function (bytes) {
   var deferred = Q.defer()
   this.sendStunRequest(
     bytes,
-    function(stunResponse) { // on response
+    function (stunResponse) { // on response
       deferred.resolve(stunResponse)
     },
-    function(error) { // on failure
+    function (error) { // on failure
       deferred.reject(error)
     }
   )

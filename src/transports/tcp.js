@@ -4,7 +4,7 @@ var net = require('net')
 var Q = require('q')
 var winston = require('winston')
 
-function TcpWrapper() {
+function TcpWrapper () {
 }
 
 TcpWrapper.prototype.init = function (host, port) {
@@ -13,11 +13,11 @@ TcpWrapper.prototype.init = function (host, port) {
   this._client = net.createConnection(this._port, this._host)
   this._client.on('error', this._onError)
   var self = this
-  this._client.on('data', function(data) {
+  this._client.on('data', function (data) {
     var rinfo = {}
     rinfo.address = self._host
-    rinfo.port = parseInt(self._port)
-    rinfo.family = net.isIPv4(self._host)? 'IPv4': 'IPv6'
+    rinfo.port = parseInt(self._port, 10)
+    rinfo.family = net.isIPv4(self._host) ? 'IPv4' : 'IPv6'
     rinfo.size = data.length
     self._onMessage(data, rinfo)
   })
@@ -37,10 +37,10 @@ TcpWrapper.prototype.sendP = function (bytes) {
   var self = this
   this.send(
     bytes,
-    function() { // on success
+    function () { // on success
       deferred.resolve()
     },
-    function(error) {
+    function (error) {
       var errorMsg = '[stun-js] tcp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
       winston.error(errorMsg)
       deferred.reject(errorMsg)
@@ -53,11 +53,11 @@ TcpWrapper.prototype.release = function () {
   this._client.end()
 }
 
-TcpWrapper.prototype.onMessage = function(callback) {
+TcpWrapper.prototype.onMessage = function (callback) {
   this._onMessage = callback
 }
 
-TcpWrapper.prototype.onError = function(callback) {
+TcpWrapper.prototype.onError = function (callback) {
   this._onError = callback
 }
 

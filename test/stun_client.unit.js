@@ -43,13 +43,13 @@ describe('#STUN operations', function () {
   it('should execute STUN bind operation over UDP socket using promises', function (done) {
     // create socket
     var socket = dgram.createSocket('udp4')
-    socket.on('message', function(message, rinfo) { //
+    socket.on('message', function (message, rinfo) { //
       done(new Error('message callback should not be fired'))
     })
-    socket.on('error', function(error) {
+    socket.on('error', function (error) {
       done(error)
     })
-    socket.on('listening', function() {
+    socket.on('listening', function () {
       // create stun client and pass socket over
       var transport = new transports.UDP(socket)
       var client = new StunClient(stunAddr, stunPort, transport)
@@ -99,7 +99,6 @@ describe('#STUN operations', function () {
         expect(mappedAddress).to.have.property('address')
         expect(mappedAddress).to.have.property('port')
         client.close()
-    })
+      })
   })
-
 })
