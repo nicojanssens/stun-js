@@ -33,7 +33,6 @@ UdpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
     winston.error(error)
     throw new Error(error)
   }
-  console.log(this._host + ':' + this._port)
   this._socket.send(bytes, 0, bytes.length, this._port, this._host, function (error) {
     if (error) {
       onFailure(error)
