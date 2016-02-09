@@ -89,7 +89,7 @@ describe('#STUN operations', function () {
     client.bind(onBindSuccess, onFailure)
   })
 
-  it('should execute STUN bind operation over random UDP socket using promises', function () {
+  it('should execute STUN bind operation over unspecified UDP socket using promises', function () {
     // create stun client and pass socket over
     var client = new StunClient(stunAddr, stunPort)
     return client.bindP()
