@@ -2,7 +2,10 @@
 
 var inherits = require('util').inherits
 var Q = require('q')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js')
+var errorLog = debug('stun-js:error')
 
 var Attributes = require('./attributes')
 var Packet = require('./packet')
@@ -25,7 +28,7 @@ StunClient.prototype.bindP = function () {
       var errorCode = bindReply.getAttribute(Attributes.ERROR_CODE)
       // check if the reply includes an error code attr
       if (errorCode) {
-        throw new Error('[stun-js] bind error: ' + errorCode.reason)
+        throw new Error('bind error: ' + errorCode.reason)
       }
       var mappedAddressAttr = bindReply.getAttribute(Attributes.XOR_MAPPED_ADDRESS)
       if (!mappedAddressAttr) {
@@ -43,8 +46,8 @@ StunClient.prototype.bindP = function () {
 
 StunClient.prototype.bind = function (onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[stun-js] bind callback handlers are undefined'
-    winston.error(error)
+    var error = 'bind callback handlers are undefined'
+    errorLog(error)
     throw new Error(error)
   }
   this.bindP()
@@ -60,16 +63,16 @@ StunClient.prototype.bind = function (onSuccess, onFailure) {
 
 // Send STUN bind request
 StunClient.prototype.sendBindRequestP = function () {
-  winston.debug('[stun-js] send bind request (using promises)')
+  debugLog('send bind request (using promises)')
   var message = composeBindRequest()
   return this.sendStunRequestP(message)
 }
 
 StunClient.prototype.sendBindRequest = function (onSuccess, onFailure) {
-  winston.debug('[stun-js] send bind request')
+  debugLog('send bind request')
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[stun-js] send bind request callback handlers are undefined'
-    winston.error(error)
+    var error = 'send bind request callback handlers are undefined'
+    errorLog(error)
     throw new Error(error)
   }
   this.sendBindRequestP()
@@ -83,16 +86,16 @@ StunClient.prototype.sendBindRequest = function (onSuccess, onFailure) {
 
 // Send STUN bind indication
 StunClient.prototype.sendBindIndicationP = function () {
-  winston.debug('[stun-js] send bind indication (using promises)')
+  debugLog('send bind indication (using promises)')
   var message = composeBindIndication()
   return this.sendStunIndicationP(message)
 }
 
 StunClient.prototype.sendBindIndication = function (onSuccess, onFailure) {
-  winston.debug('[stun-js] send bind indication')
+  debugLog('send bind indication')
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[stun-js] send bind indication callback handlers are undefined'
-    winston.error(error)
+    var error = 'send bind indication callback handlers are undefined'
+    errorLog(error)
     throw new Error(error)
   }
   this.sendBindIndicationP()

@@ -3,7 +3,10 @@
 var events = require('events')
 var util = require('util')
 var Q = require('q')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js')
+var errorLog = debug('stun-js:error')
 
 var Packet = require('./packet')
 var UdpTransport = require('./transports/udp')
@@ -11,8 +14,8 @@ var UdpTransport = require('./transports/udp')
 // Init client
 var StunComm = function (stunHost, stunPort, transport) {
   if (stunPort === undefined || stunHost === undefined) {
-    var error = '[stun-js] stun host and/or port are undefined'
-    winston.error(error)
+    var error = 'stun host and/or port are undefined'
+    errorLog(error)
     throw new Error(error)
   }
   this._responseCallbacks = {}
@@ -30,7 +33,7 @@ util.inherits(StunComm, events.EventEmitter)
 
 // Close client
 StunComm.prototype.close = function () {
-  winston.debug('[stun-js] closing client')
+  debugLog('closing client')
   this._transport.release()
 }
 
@@ -75,8 +78,8 @@ StunComm.prototype.sendStunIndicationP = function (bytes) {
 
 StunComm.prototype.sendStunIndication = function (bytes, onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[stun-js] send stun indication callback handlers are undefined'
-    winston.error(error)
+    var error = 'send stun indication callback handlers are undefined'
+    errorLog(error)
     throw new Error(error)
   }
   this._transport.send(bytes, onSuccess, onFailure)
@@ -86,7 +89,7 @@ StunComm.prototype.sendStunIndication = function (bytes, onSuccess, onFailure) {
 StunComm.prototype.onIncomingMessage = function () {
   var self = this
   return function (bytes, rinfo) {
-    winston.debug('[stun-js] receiving message from ' + JSON.stringify(rinfo))
+    debugLog('receiving message from ' + JSON.stringify(rinfo))
     // this is a stun packet
     var stunPacket = Packet.decode(bytes)
     if (stunPacket) {
@@ -101,8 +104,8 @@ StunComm.prototype.onIncomingMessage = function () {
           self.onIncomingStunIndication(stunPacket, rinfo)
           break
         default:
-          var errorMsg = "[stun-js] don't know how to process incoming STUN message -- dropping it on the floor"
-          winston.error(errorMsg)
+          var errorMsg = "don't know how to process incoming STUN message -- dropping it on the floor"
+          errorLog(errorMsg)
           throw new Error(errorMsg)
       }
     } else {
@@ -119,8 +122,8 @@ StunComm.prototype.onIncomingStunResponse = function (stunPacket, rinfo) {
     onResponseCallback(stunPacket)
     delete this._responseCallbacks[stunPacket.tid]
   } else {
-    var errorMsg = '[stun-js] no handler available to process response with tid ' + stunPacket.tid
-    winston.error(errorMsg)
+    var errorMsg = 'no handler available to process response with tid ' + stunPacket.tid
+    errorLog(errorMsg)
     throw new Error(errorMsg)
   }
 }
@@ -138,8 +141,8 @@ StunComm.prototype.onOtherIncomingMessage = function (bytes, rinfo) {
 // Error handler
 StunComm.prototype.onFailure = function () {
   return function (error) {
-    var errorMsg = '[stun-js] client error: ' + error
-    winston.error(errorMsg)
+    var errorMsg = 'client error: ' + error
+    errorLog(errorMsg)
     throw new Error(errorMsg)
   }
 }

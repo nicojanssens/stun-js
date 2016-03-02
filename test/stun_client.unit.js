@@ -3,7 +3,6 @@
 var dgram = require('dgram')
 var StunClient = require('../src/stun_client')
 var transports = require('../src/transports')
-var winston = require('winston')
 
 var chai = require('chai')
 var chaiAsPromised = require('chai-as-promised')
@@ -35,7 +34,6 @@ var argv = require('yargs')
 var stunAddr = argv.addr
 var stunPort = argv.port
 var socketPort = 12345
-winston.level = argv.log
 
 describe('#STUN operations', function () {
   this.timeout(5000)

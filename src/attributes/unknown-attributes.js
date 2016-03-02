@@ -1,15 +1,17 @@
 'use strict'
 
-var winston = require('winston')
+var debug = require('debug')
+
+var debugLog = debug('stun-js:attributes')
 
 var UnknownAttributesAttr = function (value) {
   this.value = value
   this.type = 0x000A
-  winston.debug('[stun-js] unknown attributes attr: ' + JSON.stringify(this.value))
+  debugLog('unknown attributes attr: ' + JSON.stringify(this.value))
 }
 
 UnknownAttributesAttr.prototype.encode = function () {
-  throw new Error('[stun-js] unknown-attributes.encode not implemented yet')
+  throw new Error('unknown-attributes.encode not implemented yet')
 }
 
 UnknownAttributesAttr.decode = function (attrBytes) {

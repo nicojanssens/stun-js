@@ -1,17 +1,20 @@
 'use strict'
 
 var padding = require('./padding')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js:attributes')
+var errorLog = debug('stun-js:attributes:error')
 
 var SoftwareAttr = function (description) {
   if (description === undefined) {
-    var error = '[stun-js] invalid software attribute'
-    winston.error(error)
+    var error = 'invalid software attribute'
+    errorLog(error)
     throw new Error(error)
   }
   this.description = description
   this.type = 0x8022
-  winston.debug('[stun-js] software attr: ' + this.description)
+  debugLog('software attr: ' + this.description)
 }
 
 SoftwareAttr.prototype.encode = function () {
@@ -21,7 +24,7 @@ SoftwareAttr.prototype.encode = function () {
   // value
   var valueBytes = new Buffer(this.description)
   if (this.description.length >= 128 || valueBytes.length >= 764) {
-    throw new Error('[stun-js] invalid software attribute')
+    throw new Error('invalid software attribute')
   }
   // length
   var lengthBytes = new Buffer(2)
@@ -37,7 +40,7 @@ SoftwareAttr.prototype.encode = function () {
 SoftwareAttr.decode = function (attrBytes) {
   var description = attrBytes.toString()
   if (attrBytes.length >= 764 || description.length >= 128) {
-    throw new Error('[stun-js] invalid software attribute')
+    throw new Error('invalid software attribute')
   }
   return new SoftwareAttr(description)
 }

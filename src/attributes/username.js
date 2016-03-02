@@ -1,17 +1,20 @@
 'use strict'
 
 var padding = require('./padding')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js:attributes')
+var errorLog = debug('stun-js:attributes:error')
 
 var UsernameAttr = function (name) {
   if (name === undefined) {
-    var error = '[stun-js] invalid username attribute'
-    winston.error(error)
+    var error = 'invalid username attribute'
+    errorLog(error)
     throw new Error(error)
   }
   this.name = name
   this.type = 0x0006
-  winston.debug('[stun-js] username attr: ' + this.name)
+  debugLog('username attr: ' + this.name)
 }
 
 UsernameAttr.prototype.encode = function () {
@@ -21,7 +24,7 @@ UsernameAttr.prototype.encode = function () {
   // value
   var valueBytes = new Buffer(this.name)
   if (valueBytes.length > 512) {
-    throw new Error('[stun-js] invalid username attribute')
+    throw new Error('invalid username attribute')
   }
   // length
   var lengthBytes = new Buffer(2)
@@ -36,7 +39,7 @@ UsernameAttr.prototype.encode = function () {
 
 UsernameAttr.decode = function (attrBytes) {
   if (attrBytes.length > 512) {
-    throw new Error('[stun-js] invalid username')
+    throw new Error('invalid username')
   }
   var name = attrBytes.toString()
   return new UsernameAttr(name)

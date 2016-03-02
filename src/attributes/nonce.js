@@ -1,17 +1,20 @@
 'use strict'
 
 var padding = require('./padding')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js:attributes')
+var errorLog = debug('stun-js:attributes:error')
 
 var NonceAttr = function (value) {
   if (value === undefined) {
-    var error = '[stun-js] invalid nonce attribute'
-    winston.error(error)
+    var error = 'invalid nonce attribute'
+    errorLog(error)
     throw new Error(error)
   }
   this.value = value
   this.type = 0x0015
-  winston.debug('[stun-js] nonce attr: ' + this.value)
+  debugLog('nonce attr: ' + this.value)
 }
 
 NonceAttr.prototype.encode = function () {
@@ -21,7 +24,7 @@ NonceAttr.prototype.encode = function () {
   // value
   var valueBytes = new Buffer(this.value)
   if (this.value.length >= 128 || valueBytes.length >= 764) {
-    throw new Error('[stun-js] invalid nonce attribute')
+    throw new Error('invalid nonce attribute')
   }
   // length
   var lengthBytes = new Buffer(2)
@@ -37,7 +40,7 @@ NonceAttr.prototype.encode = function () {
 NonceAttr.decode = function (attrBytes) {
   var value = attrBytes.toString()
   if (attrBytes.length >= 764 || value.length >= 128) {
-    throw new Error('[stun-js] invalid nonce attribute')
+    throw new Error('invalid nonce attribute')
   }
   return new NonceAttr(value)
 }

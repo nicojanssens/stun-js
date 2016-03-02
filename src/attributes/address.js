@@ -6,7 +6,9 @@ exports.decode = decode
 exports.decodeXor = decodeXor
 
 var ip = require('ip')
-var winston = require('winston')
+
+var debug = require('debug')
+var errorLog = debug('stun-js:attributes:error')
 
 var IPv4 = 0x01
 var IPv6 = 0x02
@@ -14,18 +16,18 @@ var IPv6 = 0x02
 function encode (address, port) {
   // checks
   if (address === undefined || port === undefined) {
-    var attrError = '[stun-js] invalid address attribute'
-    winston.error(attrError)
+    var attrError = 'invalid address attribute'
+    errorLog(attrError)
     throw new Error(attrError)
   }
   if (!ip.isV4Format(address) && !ip.isV6Format(address)) {
-    var hostError = '[stun-js] invalid address host'
-    winston.error(hostError)
+    var hostError = 'invalid address host'
+    errorLog(hostError)
     throw new Error(hostError)
   }
   if (port < 0 || port > 65536) {
-    var portError = '[stun-js] invalid address port'
-    winston.error(portError)
+    var portError = 'invalid address port'
+    errorLog(portError)
     throw new Error(portError)
   }
   // create family type
@@ -46,23 +48,23 @@ function encode (address, port) {
 function encodeXor (address, port, magic, tid) {
   // checks
   if (address === undefined || port === undefined) {
-    var attrError = '[stun-js] invalid address attribute'
-    winston.error(attrError)
+    var attrError = 'invalid address attribute'
+    errorLog(attrError)
     throw new Error(attrError)
   }
   if (!ip.isV4Format(address) && !ip.isV6Format(address)) {
-    var hostError = '[stun-js] invalid address host'
-    winston.error(hostError)
+    var hostError = 'invalid address host'
+    errorLog(hostError)
     throw new Error(hostError)
   }
   if (port < 0 || port > 65536) {
-    var portError = '[stun-js] invalid address port'
-    winston.error(portError)
+    var portError = 'invalid address port'
+    errorLog(portError)
     throw new Error(portError)
   }
   if (magic === undefined || tid === undefined) {
-    var keyError = '[stun-js] invalid xor keys'
-    winston.error(keyError)
+    var keyError = 'invalid xor keys'
+    errorLog(keyError)
     throw new Error(keyError)
   }
   // magic and tid bytes -- needed for xor mapping

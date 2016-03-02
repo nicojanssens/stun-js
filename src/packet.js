@@ -1,19 +1,21 @@
 'use strict'
 
-var winston = require('winston')
+var debug = require('debug')
+var debugLog = debug('stun-js')
+var errorLog = debug('stun-js:error')
 
 var Attributes = require('./attributes')
 
 // packet class
 var Packet = function (method, type, attrs) {
   if (!containsValue(Packet.METHOD, method)) {
-    var methodError = '[stun-js] invalid packet method attribute'
-    winston.error(methodError)
+    var methodError = 'invalid packet method attribute'
+    errorLog(methodError)
     throw new Error(methodError)
   }
   if (!containsValue(Packet.TYPE, type)) {
-    var typeError = '[stun-js] invalid packet type attribute'
-    winston.error(typeError)
+    var typeError = 'invalid packet type attribute'
+    errorLog(typeError)
     throw new Error(typeError)
   }
 
@@ -64,7 +66,7 @@ Packet.prototype.encode = function () {
 // decode packet
 Packet.decode = function (buffer) {
   if (!Packet._isStunPacket(buffer)) {
-    winston.debug('[stun-js] this is not a STUN packet')
+    debugLog('this is not a STUN packet')
     return
   }
 
@@ -73,7 +75,7 @@ Packet.decode = function (buffer) {
 
   if (header.magic !== Packet.MAGIC_COOKIE) {
     var incorrectMagicCookieError = 'magic cookie field has incorrect value'
-    winston.error('[stun-js] ' + incorrectMagicCookieError)
+    errorLog('' + incorrectMagicCookieError)
     throw new Error(incorrectMagicCookieError)
   }
 

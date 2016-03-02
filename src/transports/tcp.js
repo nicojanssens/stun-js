@@ -2,7 +2,9 @@
 
 var net = require('net')
 var Q = require('q')
-var winston = require('winston')
+
+var debug = require('debug')
+var errorLog = debug('stun-js:transports:error')
 
 function TcpWrapper () {
 }
@@ -25,8 +27,8 @@ TcpWrapper.prototype.init = function (host, port) {
 
 TcpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = '[stun-js] tcp send bytes callback handlers are undefined'
-    winston.error(error)
+    var error = 'debugLogtcp send bytes callback handlers are undefined'
+    errorLog(error)
     throw new Error(error)
   }
   this._client.write(bytes, 'binary', onSuccess)
@@ -41,8 +43,8 @@ TcpWrapper.prototype.sendP = function (bytes) {
       deferred.resolve()
     },
     function (error) {
-      var errorMsg = '[stun-js] tcp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
-      winston.error(errorMsg)
+      var errorMsg = 'debugLogtcp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
+      errorLog(errorMsg)
       deferred.reject(errorMsg)
     }
   )

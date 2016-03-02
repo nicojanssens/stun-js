@@ -1,17 +1,20 @@
 'use strict'
 
 var padding = require('./padding')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js:attributes')
+var errorLog = debug('stun-js:attributes:error')
 
 var RealmAttr = function (value) {
   if (value === undefined || value === '') {
-    var error = '[stun-js] invalid realm attribute'
-    winston.error(error)
+    var error = 'invalid realm attribute'
+    errorLog(error)
     throw new Error(error)
   }
   this.value = value
   this.type = 0x0014
-  winston.debug('[stun-js] realm attr: ' + this.value)
+  debugLog('realm attr: ' + this.value)
 }
 
 RealmAttr.prototype.encode = function () {
@@ -21,7 +24,7 @@ RealmAttr.prototype.encode = function () {
   // value
   var valueBytes = new Buffer(this.value)
   if (this.value.length >= 128 || valueBytes.length >= 764) {
-    throw new Error('[stun-js] invalid realm attribute')
+    throw new Error('invalid realm attribute')
   }
   // length
   var lengthBytes = new Buffer(2)
@@ -37,7 +40,7 @@ RealmAttr.prototype.encode = function () {
 RealmAttr.decode = function (attrBytes) {
   var value = attrBytes.toString()
   if (attrBytes.length >= 764 || value.length >= 128) {
-    throw new Error('[stun-js] invalid realm attribute')
+    throw new Error('invalid realm attribute')
   }
   return new RealmAttr(value)
 }
