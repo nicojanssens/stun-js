@@ -1,12 +1,9 @@
 'use strict'
 
 var Packet = require('../src/packet')
-var winston = require('winston')
 
 var chai = require('chai')
 var expect = chai.expect
-
-winston.level = 'debug'
 
 describe('#STUN operations', function () {
   it('should encode and decode a binding request', function (done) {

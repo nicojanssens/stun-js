@@ -1,26 +1,29 @@
 'use strict'
 
 var crypto = require('crypto')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js:attributes')
+var errorLog = debug('stun-js:attributes:error')
 
 var MessageIntegrityAttr = function (request, hash) {
   if (request) {
     if (request.username === undefined || request.password === undefined) {
-      var error = '[stun-js] invalid message integrity attribute'
-      winston.error(error)
+      var error = 'invalid message integrity attribute'
+      errorLog(error)
       throw new Error(error)
     }
   }
   this.request = request
   this.hash = hash
   this.type = 0x0008
-  winston.debug('[stun-js] message integrity attr: request = ' + JSON.stringify(this.request) + ', hash = ' + this.hash)
+  debugLog('message integrity attr: request = ' + JSON.stringify(this.request) + ', hash = ' + this.hash)
 }
 
 MessageIntegrityAttr.prototype.encode = function (packetBytes) {
   if (packetBytes === undefined) {
-    var error = '[stun-js] invalid MessageIntegrityAttr.encode attributes'
-    winston.error(error)
+    var error = 'invalid MessageIntegrityAttr.encode attributes'
+    errorLog(error)
     throw new Error(error)
   }
   // type
@@ -49,8 +52,8 @@ MessageIntegrityAttr.prototype.encode = function (packetBytes) {
 
 MessageIntegrityAttr.decode = function (attrBytes) {
   if (attrBytes.length !== 20) {
-    var error = '[stun-js] invalid message integrity attribute'
-    winston.error(error)
+    var error = 'invalid message integrity attribute'
+    errorLog(error)
     throw new Error(error)
   }
   var hash = attrBytes.toString('hex')

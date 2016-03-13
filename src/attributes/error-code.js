@@ -1,30 +1,33 @@
 'use strict'
 
 var padding = require('./padding')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js:attributes')
+var errorLog = debug('stun-js:attributes:error')
 
 var ErrorCodeAttr = function (code, reason) {
   if (code === undefined) {
-    var undefinedCodeError = '[stun-js] invalid error code attribute'
-    winston.error(undefinedCodeError)
+    var undefinedCodeError = 'invalid error code attribute'
+    errorLog(undefinedCodeError)
     throw new Error(undefinedCodeError)
   }
   if (code < 300 || code >= 700) {
-    var invalidCodeError = '[stun-js] invalid error code'
-    winston.error(invalidCodeError)
+    var invalidCodeError = 'invalid error code'
+    errorLog(invalidCodeError)
     return new Error(invalidCodeError)
   }
   reason = reason || ErrorCodeAttr.REASON[code]
   if (reason.length >= 128) {
-    var invalidReasonError = '[stun-js] invalid error reason'
-    winston.error(invalidReasonError)
+    var invalidReasonError = 'invalid error reason'
+    errorLog(invalidReasonError)
     return new Error(invalidReasonError)
   }
   this.code = code
   this.reason = reason
   this.type = 0x0009
 
-  winston.debug('[stun-js] error code attr: code = ' + this.code + ', reason = ' + this.reason)
+  debugLog('error code attr: code = ' + this.code + ', reason = ' + this.reason)
 }
 
 // error codes
@@ -69,10 +72,10 @@ ErrorCodeAttr.decode = function (attrBytes) {
   var reason = attrBytes.toString('utf8', 4)
 
   if (reason.length >= 128) {
-    throw new Error('[stun-js] invalid error code')
+    throw new Error('invalid error code')
   }
   if (code < 300 || code >= 700) {
-    throw new Error('[stun-js] invalid error code')
+    throw new Error('invalid error code')
   }
 
   return new ErrorCodeAttr(code, reason)

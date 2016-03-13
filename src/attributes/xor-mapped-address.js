@@ -1,25 +1,28 @@
 'use strict'
 
 var addressAttr = require('./address')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js:attributes')
+var errorLog = debug('stun-js:attributes:error')
 
 var XORMappedAddressAttr = function (address, port) {
   if (address === undefined || port === undefined) {
-    var error = '[stun-js] invalid xor mapped address attribute'
-    winston.error(error)
+    var error = 'invalid xor mapped address attribute'
+    errorLog(error)
     throw new Error(error)
   }
   this.address = address
   this.port = port
   this.type = 0x0020
 
-  winston.debug('[stun-js] xor mapped address attr: ' + this.address + ':' + this.port)
+  debugLog('xor mapped address attr: ' + this.address + ':' + this.port)
 }
 
 XORMappedAddressAttr.prototype.encode = function (magic, tid) {
   if (magic === undefined || tid === undefined) {
-    var error = '[stun-js] invalid xorMappedAddressAttr.encode params'
-    winston.error(error)
+    var error = 'invalid xorMappedAddressAttr.encode params'
+    errorLog(error)
     throw new Error(error)
   }
   // type

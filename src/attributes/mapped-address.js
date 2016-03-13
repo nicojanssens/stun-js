@@ -1,19 +1,22 @@
 'use strict'
 
 var addressAttr = require('./address')
-var winston = require('winston')
+
+var debug = require('debug')
+var debugLog = debug('stun-js:attributes')
+var errorLog = debug('stun-js:attributes:error')
 
 var MappedAddressAttr = function (address, port) {
   if (address === undefined || port === undefined) {
-    var error = '[stun-js] invalid mapped address attribute'
-    winston.error(error)
+    var error = 'invalid mapped address attribute'
+    errorLog(error)
     throw new Error('error')
   }
   this.address = address
   this.port = port
   this.type = 0x0001
 
-  winston.debug('[stun-js] mapped address = ' + this.address + ', port = ' + this.port)
+  debugLog('mapped address = ' + this.address + ', port = ' + this.port)
 }
 
 MappedAddressAttr.prototype.encode = function () {
