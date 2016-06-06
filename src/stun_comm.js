@@ -34,9 +34,14 @@ var StunComm = function (stunHost, stunPort, transport) {
 util.inherits(StunComm, events.EventEmitter)
 
 // Close client
-StunComm.prototype.close = function () {
+StunComm.prototype.close = function (done) {
   debugLog('closing client')
-  this._transport.release()
+  this._transport.close(done)
+}
+
+StunComm.prototype.closeP = function () {
+  debugLog('closing client')
+  return this._transport.closeP()
 }
 
 /** STUN communication */
