@@ -23,9 +23,11 @@ var StunComm = function (stunHost, stunPort, transport) {
   events.EventEmitter.call(this)
 
   this._transport = transport || new UdpTransport()
-  this._transport.onMessage(this.onIncomingMessage())
+  this._transport.onData(this.onIncomingData())
   this._transport.onError(this.onFailure())
   this._transport.init(stunHost, stunPort)
+
+  this._availableBytes = new Buffer(0)
 }
 
 // Inherit EventEmitter
@@ -85,37 +87,52 @@ StunComm.prototype.sendStunIndication = function (bytes, onSuccess, onFailure) {
   this._transport.send(bytes, onSuccess, onFailure)
 }
 
-// Incoming message handler
-StunComm.prototype.onIncomingMessage = function () {
+// Incoming data handler
+StunComm.prototype.onIncomingData = function () {
   var self = this
   return function (bytes, rinfo) {
-    debugLog('receiving message from ' + JSON.stringify(rinfo))
-    // this is a stun packet
-    var stunPacket = Packet.decode(bytes)
-    if (stunPacket) {
-      switch (stunPacket.type) {
-        case Packet.TYPE.SUCCESS_RESPONSE:
-          self.onIncomingStunResponse(stunPacket, rinfo)
-          break
-        case Packet.TYPE.ERROR_RESPONSE:
-          self.onIncomingStunResponse(stunPacket, rinfo)
-          break
-        case Packet.TYPE.INDICATION:
-          self.onIncomingStunIndication(stunPacket, rinfo)
-          break
-        default:
-          var errorMsg = "don't know how to process incoming STUN message -- dropping it on the floor"
-          errorLog(errorMsg)
-          throw new Error(errorMsg)
-      }
-    } else {
-      self.onOtherIncomingMessage(bytes, rinfo)
-    }
+    debugLog('receiving data from ' + JSON.stringify(rinfo))
+    self._availableBytes = Buffer.concat([self._availableBytes, bytes])
+    self.parseIncomingData(self._availableBytes, rinfo)
+  }
+}
+
+StunComm.prototype.parseIncomingData = function (bytes, rinfo) {
+  // try to decode a stun packet
+  var stunDecoding = Packet.decode(bytes)
+  if (stunDecoding) {
+    // keep remaining bytes
+    this._availableBytes = stunDecoding.remainingBytes
+    // dispatch packet
+    this.dispatchStunPacket(stunDecoding.packet, rinfo)
+  } else {
+    this.onOtherIncomingMessage(bytes, rinfo)
+  }
+}
+
+StunComm.prototype.dispatchStunPacket = function (stunPacket, rinfo) {
+  switch (stunPacket.type) {
+    case Packet.TYPE.SUCCESS_RESPONSE:
+      debugLog('incoming STUN success response')
+      this.onIncomingStunResponse(stunPacket)
+      break
+    case Packet.TYPE.ERROR_RESPONSE:
+      debugLog('incoming STUN success response')
+      this.onIncomingStunResponse(stunPacket)
+      break
+    case Packet.TYPE.INDICATION:
+      debugLog('incoming STUN indication')
+      this.onIncomingStunIndication(stunPacket, rinfo)
+      break
+    default:
+      var errorMsg = "don't know how to process incoming STUN message -- dropping it on the floor"
+      errorLog(errorMsg)
+      throw new Error(errorMsg)
   }
 }
 
 // Incoming STUN reply
-StunComm.prototype.onIncomingStunResponse = function (stunPacket, rinfo) {
+StunComm.prototype.onIncomingStunResponse = function (stunPacket) {
   // this is a stun reply
   var onResponseCallback = this._responseCallbacks[stunPacket.tid]
   if (onResponseCallback) {
@@ -133,7 +150,7 @@ StunComm.prototype.onIncomingStunIndication = function (stunPacket, rinfo) {
   this.emit('indication', stunPacket, rinfo)
 }
 
-// Incoming message that is different from regular STUN packets
+// Incoming data that is different from regular STUN packets
 StunComm.prototype.onOtherIncomingMessage = function (bytes, rinfo) {
   this.emit('message', bytes, rinfo)
 }

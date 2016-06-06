@@ -51,9 +51,9 @@ Packet.prototype.encode = function () {
   if (messageIntegrity) {
     attrsLength += 24 // size of the message-integrity attribute
   }
-  // encode header buffer
+  // encode header bytes
   var headerBuffer = this._encodeHeader(attrsLength)
-  // create packet buffer
+  // create packet bytes
   var packetBuffer = Buffer.concat([headerBuffer, attrsBuffer])
   // append message integrity attribute if requested
   if (messageIntegrity) {
@@ -64,28 +64,49 @@ Packet.prototype.encode = function () {
 }
 
 // decode packet
-Packet.decode = function (buffer) {
-  if (!Packet._isStunPacket(buffer)) {
+Packet.decode = function (bytes) {
+  // check if packet starts with 0b00
+  if (!Packet._isStunPacket(bytes)) {
     debugLog('this is not a STUN packet')
     return
   }
-
-  var headerBytes = buffer.slice(0, Packet.HEADER_LENGTH)
+  // check if buffer contains enough bytes to parse header
+  if (bytes.length < Packet.HEADER_LENGTH) {
+    debugLog('not enough bytes to parse header, giving up')
+    return
+  }
+  // parse header
+  var headerBytes = bytes.slice(0, Packet.HEADER_LENGTH)
   var header = Packet._decodeHeader(headerBytes)
-
+  // check magic cookie
   if (header.magic !== Packet.MAGIC_COOKIE) {
     var incorrectMagicCookieError = 'magic cookie field has incorrect value'
     errorLog('' + incorrectMagicCookieError)
     throw new Error(incorrectMagicCookieError)
   }
-
-  var attrsBytes = buffer.slice(Packet.HEADER_LENGTH, buffer.length)
+  // check if length attribute is valid
+  if (header.length % 4 !== 0) {
+    debugLog('attributes are not padded to a multiple of 4 bytes, giving up')
+    return
+  }
+  // check if buffer contains enough bytes to parse Attributes
+  if (bytes.length < Packet.HEADER_LENGTH + header.length) {
+    debugLog('not enough bytes to parse attributes, giving up')
+    return
+  }
+  var attrsBytes = bytes.slice(Packet.HEADER_LENGTH, Packet.HEADER_LENGTH + header.length)
   var attrs = Attributes.decode(attrsBytes, headerBytes)
 
   var packet = new Packet(header.method, header.type, attrs)
   packet.tid = header.tid
 
-  return packet
+  var remainingBytes = bytes.slice(Packet.HEADER_LENGTH + header.length, bytes.length)
+
+  var result = {
+    packet: packet,
+    remainingBytes: remainingBytes
+  }
+  return result
 }
 
 // get attribute
@@ -108,20 +129,20 @@ Packet.prototype._encodeHeader = function (length) {
 }
 
 // decode packet header
-Packet._decodeHeader = function (buffer) {
+Packet._decodeHeader = function (bytes) {
   var header = {}
-  var methodType = buffer.readUInt16BE(0)
-  header.length = buffer.readUInt16BE(2)
-  header.magic = buffer.readUInt32BE(4)
-  header.tid = buffer.readUInt32BE(16)
+  var methodType = bytes.readUInt16BE(0)
+  header.length = bytes.readUInt16BE(2)
+  header.magic = bytes.readUInt32BE(4)
+  header.tid = bytes.readUInt32BE(16)
   header.type = (methodType & 0x0110)
   header.method = (methodType & 0xFEEF)
   return header
 }
 
 // check if this is a STUN packet (starts with 0b00)
-Packet._isStunPacket = function (buffer) {
-  var block = buffer.readUInt8(0)
+Packet._isStunPacket = function (bytes) {
+  var block = bytes.readUInt8(0)
   var bit1 = containsFlag(block, 0x80)
   var bit2 = containsFlag(block, 0x40)
   return (!bit1 && !bit2)
