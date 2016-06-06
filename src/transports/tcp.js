@@ -51,8 +51,23 @@ TcpWrapper.prototype.sendP = function (bytes) {
   return deferred.promise
 }
 
-TcpWrapper.prototype.release = function () {
-  this._client.end()
+TcpWrapper.prototype.close = function (done) {
+  this._client.once('close', function() {
+    if (done) {
+      done()
+    }
+  })
+  this._client.destroy()
+}
+
+TcpWrapper.prototype.closeP = function () {
+  var deferred = Q.defer()
+  this.close(
+    function () { // on success
+      deferred.resolve()
+    }
+  )
+  return deferred.promise
 }
 
 TcpWrapper.prototype.onData = function (callback) {
