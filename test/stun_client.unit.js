@@ -52,11 +52,19 @@ describe('#STUN operations', function () {
           expect(mappedAddress).not.to.be.undefined
           expect(mappedAddress).to.have.property('address')
           expect(mappedAddress).to.have.property('port')
-          client.close()
+          return client.closeP()
+        })
+        .then(function () {
           // check the socket's event listeners (should not include any STUN client handler)
           expect(socket.listeners('message').length).to.equal(1)
           expect(socket.listeners('error').length).to.equal(1)
-          done()
+          // close socket
+          socket.close(function () {
+            done()
+          })
+        })
+        .catch(function (error) {
+          done(error)
         })
     })
     socket.bind(socketPort)
@@ -75,8 +83,9 @@ describe('#STUN operations', function () {
       expect(mappedAddress).to.have.property('address')
       expect(mappedAddress).to.have.property('port')
       // expect(mappedAddress.address).to.equal(testGW)
-      client.close()
-      done()
+      client.close(function () {
+        done()
+      })
     }
     // execute bind operation
     client.bind(onBindSuccess, onFailure)
@@ -91,8 +100,13 @@ describe('#STUN operations', function () {
         expect(mappedAddress).not.to.be.undefined
         expect(mappedAddress).to.have.property('address')
         expect(mappedAddress).to.have.property('port')
-        client.close()
+        return client.closeP()
+      })
+      .then(function () {
         done()
+      })
+      .catch(function (error) {
+        done(error)
       })
   })
 })
