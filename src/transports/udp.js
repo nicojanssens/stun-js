@@ -8,23 +8,27 @@ var errorLog = debug('stun-js:transports:error')
 
 function UdpWrapper (socket) {
   this._socket = (socket === undefined) ? dgram.createSocket('udp4') : socket
+  this._externalSocket = (socket !== undefined)
 }
 
 UdpWrapper.prototype.init = function (host, port) {
   this._host = host
   this._port = port
-  // store original message and error listeners, if any
-  this._messageListeners = this._socket.listeners('message')
-  this._errorListeners = this._socket.listeners('error')
-  // temp remove these listeners ...
-  var self = this
-  this._messageListeners.forEach(function (callback) {
-    self._socket.removeListener('message', callback)
-  })
-  this._errorListeners.forEach(function (callback) {
-    self._socket.removeListener('error', callback)
-  })
-  // ... and put temp handlers in place
+  // if socket is defined/used externally
+  if (this._externalSocket) {
+    // store original message and error listeners, if any
+    this._messageListeners = this._socket.listeners('message')
+    this._errorListeners = this._socket.listeners('error')
+    // temp remove these listeners ...
+    var self = this
+    this._messageListeners.forEach(function (callback) {
+      self._socket.removeListener('message', callback)
+    })
+    this._errorListeners.forEach(function (callback) {
+      self._socket.removeListener('error', callback)
+    })
+  }
+  // register our own handlers
   this._socket.on('message', this._onData)
   this._socket.on('error', this._onError)
 }
@@ -61,26 +65,49 @@ UdpWrapper.prototype.sendP = function (bytes) {
   return deferred.promise
 }
 
-UdpWrapper.prototype.release = function () {
+UdpWrapper.prototype.close = function (done) {
   var self = this
-  // remove temp listeners
-  this._socket.listeners('message').forEach(function (callback) {
-    self._socket.removeListener('message', callback)
-  })
-  this._socket.listeners('error').forEach(function (callback) {
-    self._socket.removeListener('error', callback)
-  })
-  // restore the original listeners
-  this._messageListeners.forEach(function (callback) {
-    self._socket.on('message', callback)
-  })
-  this._errorListeners.forEach(function (callback) {
-    self._socket.on('error', callback)
-  })
-  // and remove refs to these original listeners
-  this._messageListeners = this._errorListeners = []
-  // finally drop ref to this socket
-  this._socket = null
+  // if socket is defined/used externally
+  if (this._externalSocket) {
+    // remove temp listeners
+    this._socket.listeners('message').forEach(function (callback) {
+      self._socket.removeListener('message', callback)
+    })
+    this._socket.listeners('error').forEach(function (callback) {
+      self._socket.removeListener('error', callback)
+    })
+    // restore the original listeners
+    this._messageListeners.forEach(function (callback) {
+      self._socket.on('message', callback)
+    })
+    this._errorListeners.forEach(function (callback) {
+      self._socket.on('error', callback)
+    })
+    // and remove refs to these original listeners
+    this._messageListeners = this._errorListeners = []
+    // fire callback
+    if (done) {
+      done()
+    }
+  } else {
+    // close socket
+    this._socket.close(function () {
+      // fire callback
+      if (done) {
+        done()
+      }
+    })
+  }
+}
+
+UdpWrapper.prototype.closeP = function () {
+  var deferred = Q.defer()
+  this.close(
+    function () { // on success
+      deferred.resolve()
+    }
+  )
+  return deferred.promise
 }
 
 UdpWrapper.prototype.onData = function (callback) {
