@@ -28,7 +28,7 @@ var argv = require('yargs')
 
 var stunAddr = argv.addr
 var stunPort = argv.port
-var socketPort = 12345
+var socketPort = 10000
 
 describe('#STUN operations', function () {
   this.timeout(5000)
