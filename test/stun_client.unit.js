@@ -13,12 +13,12 @@ chai.should()
 var argv = require('yargs')
   .usage('Usage: $0 [params]')
   .demand('a')
-  .default('a', 'stun.l.google.com')
+  .default('a', 'stun.jappix.com')
   .alias('a', 'addr')
   .nargs('a', 1)
   .describe('a', 'STUN server address')
   .demand('p')
-  .default('p', '19302')
+  .default('p', '3478')
   .alias('p', 'port')
   .nargs('p', 1)
   .describe('p', 'STUN server port')
@@ -82,16 +82,17 @@ describe('#STUN operations', function () {
     client.bind(onBindSuccess, onFailure)
   })
 
-  it('should execute STUN bind operation over unspecified UDP socket using promises', function () {
+  it('should execute STUN bind operation over unspecified UDP socket using promises', function (done) {
     // create stun client and pass socket over
     var client = new StunClient(stunAddr, stunPort)
-    return client.bindP()
+    client.bindP()
       .then(function (mappedAddress) {
         // verify the mapped address
         expect(mappedAddress).not.to.be.undefined
         expect(mappedAddress).to.have.property('address')
         expect(mappedAddress).to.have.property('port')
         client.close()
+        done()
       })
   })
 })
