@@ -16,8 +16,12 @@ TlsWrapper.prototype.sendP = function (bytes) {
   throw new Error('not implemented yet')
 }
 
-TlsWrapper.prototype.release = function () {
+TlsWrapper.prototype.close = function () {
   throw new Error('not implemented yet')
+}
+
+TlsWrapper.prototype.closeP = function () {
+  throw new Eroor('not implemented yet')
 }
 
 TlsWrapper.prototype.onData = function (callback) {
