@@ -21,13 +21,13 @@ TcpWrapper.prototype.init = function (host, port) {
     rinfo.port = parseInt(self._port, 10)
     rinfo.family = net.isIPv4(self._host) ? 'IPv4' : 'IPv6'
     rinfo.size = data.length
-    self._onMessage(data, rinfo)
+    self._onData(data, rinfo)
   })
 }
 
 TcpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = 'debugLogtcp send bytes callback handlers are undefined'
+    var error = 'tcp send bytes callback handlers are undefined'
     errorLog(error)
     throw new Error(error)
   }
@@ -43,7 +43,7 @@ TcpWrapper.prototype.sendP = function (bytes) {
       deferred.resolve()
     },
     function (error) {
-      var errorMsg = 'debugLogtcp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
+      var errorMsg = 'tcp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
       errorLog(errorMsg)
       deferred.reject(errorMsg)
     }
@@ -55,8 +55,8 @@ TcpWrapper.prototype.release = function () {
   this._client.end()
 }
 
-TcpWrapper.prototype.onMessage = function (callback) {
-  this._onMessage = callback
+TcpWrapper.prototype.onData = function (callback) {
+  this._onData = callback
 }
 
 TcpWrapper.prototype.onError = function (callback) {

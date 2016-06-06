@@ -20,7 +20,7 @@ TlsWrapper.prototype.release = function () {
   throw new Error('not implemented yet')
 }
 
-TlsWrapper.prototype.onMessage = function (callback) {
+TlsWrapper.prototype.onData = function (callback) {
   throw new Error('not implemented yet')
 }
 

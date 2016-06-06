@@ -25,13 +25,13 @@ UdpWrapper.prototype.init = function (host, port) {
     self._socket.removeListener('error', callback)
   })
   // ... and put temp handlers in place
-  this._socket.on('message', this._onMessage)
+  this._socket.on('message', this._onData)
   this._socket.on('error', this._onError)
 }
 
 UdpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = 'debugLogudp send bytes callback handlers are undefined'
+    var error = 'udp send bytes callback handlers are undefined'
     errorLog(error)
     throw new Error(error)
   }
@@ -53,7 +53,7 @@ UdpWrapper.prototype.sendP = function (bytes) {
       deferred.resolve()
     },
     function (error) {
-      var errorMsg = 'debugLogudp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
+      var errorMsg = 'udp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
       errorLog(errorMsg)
       deferred.reject(errorMsg)
     }
@@ -83,8 +83,8 @@ UdpWrapper.prototype.release = function () {
   this._socket = null
 }
 
-UdpWrapper.prototype.onMessage = function (callback) {
-  this._onMessage = callback
+UdpWrapper.prototype.onData = function (callback) {
+  this._onData = callback
 }
 
 UdpWrapper.prototype.onError = function (callback) {
