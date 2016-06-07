@@ -64,7 +64,7 @@ Packet.prototype.encode = function () {
 }
 
 // decode packet
-Packet.decode = function (bytes) {
+Packet.decode = function (bytes, isFrame) {
   // check if packet starts with 0b00
   if (!Packet._isStunPacket(bytes)) {
     debugLog('this is not a STUN packet')
@@ -72,7 +72,7 @@ Packet.decode = function (bytes) {
   }
   // check if buffer contains enough bytes to parse header
   if (bytes.length < Packet.HEADER_LENGTH) {
-    debugLog('not enough bytes to parse header, giving up')
+    debugLog('not enough bytes to parse STUN header, giving up')
     return
   }
   // parse header
@@ -100,12 +100,16 @@ Packet.decode = function (bytes) {
   var packet = new Packet(header.method, header.type, attrs)
   packet.tid = header.tid
 
-  var remainingBytes = bytes.slice(Packet.HEADER_LENGTH + header.length, bytes.length)
-
-  var result = {
-    packet: packet,
-    remainingBytes: remainingBytes
+  var result = {}
+  result.packet = packet
+  result.remainingBytes = bytes.slice(Packet.HEADER_LENGTH + header.length, bytes.length)
+  // do we expect remaining bytes?
+  if (isFrame && result.remainingBytes.length !== 0) {
+    var error = 'not expecting remaining bytes after processing full frame packet'
+    errorLog(error)
+    throw new Error(error)
   }
+  // done
   return result
 }
 

@@ -21,7 +21,7 @@ TcpWrapper.prototype.init = function (host, port) {
     rinfo.port = parseInt(self._port, 10)
     rinfo.family = net.isIPv4(self._host) ? 'IPv4' : 'IPv6'
     rinfo.size = data.length
-    self._onData(data, rinfo)
+    self._onData(data, rinfo, false)
   })
 }
 

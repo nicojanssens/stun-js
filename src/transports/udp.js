@@ -14,13 +14,13 @@ function UdpWrapper (socket) {
 UdpWrapper.prototype.init = function (host, port) {
   this._host = host
   this._port = port
+  var self = this
   // if socket is defined/used externally
   if (this._externalSocket) {
     // store original message and error listeners, if any
     this._messageListeners = this._socket.listeners('message')
     this._errorListeners = this._socket.listeners('error')
     // temp remove these listeners ...
-    var self = this
     this._messageListeners.forEach(function (callback) {
       self._socket.removeListener('message', callback)
     })
@@ -29,7 +29,9 @@ UdpWrapper.prototype.init = function (host, port) {
     })
   }
   // register our own handlers
-  this._socket.on('message', this._onData)
+  this._socket.on('message', function(message, rinfo) {
+    self._onData(message, rinfo, true)
+  })
   this._socket.on('error', this._onError)
 }
 
