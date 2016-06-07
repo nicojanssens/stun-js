@@ -1,2 +1,2 @@
 # stun-js
-STUN (Simple Traversal of UDP through NATs) library written entirely in JavaScript
+STUN (Session Traversal Utilities for NAT) library written entirely in JavaScript
