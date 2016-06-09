@@ -27,6 +27,11 @@ var StunComm = function (stunHost, stunPort, transport) {
   this._transport.onError(this.onFailure())
   this._transport.init(stunHost, stunPort)
 
+  this._decoders = []
+  this._decoders.push({
+    decoder: Packet.decode,
+    listener: this.dispatchStunPacket.bind(this)
+  })
   this._availableBytes = new Buffer(0)
 }
 
@@ -98,20 +103,31 @@ StunComm.prototype.onIncomingData = function () {
   return function (bytes, rinfo, isFrame) {
     debugLog('receiving data from ' + JSON.stringify(rinfo))
     self._availableBytes = Buffer.concat([self._availableBytes, bytes])
-    self.parseIncomingData(self._availableBytes, rinfo, isFrame)
+    self.parseIncomingData(rinfo, isFrame)
   }
 }
 
-StunComm.prototype.parseIncomingData = function (bytes, rinfo, isFrame) {
-  // try to decode a stun packet
-  var stunDecoding = Packet.decode(bytes, isFrame)
-  if (stunDecoding) {
-    // store remaining bytes
-    this._availableBytes = stunDecoding.remainingBytes
-    // dispatch packet
-    this.dispatchStunPacket(stunDecoding.packet, rinfo)
-  } else {
-    this.onOtherIncomingMessage(bytes, rinfo, isFrame)
+StunComm.prototype.parseIncomingData = function (rinfo, isFrame) {
+  var self = this
+  // iterate over registered decoders
+  for (var i in this._decoders) {
+    var decoder = this._decoders[i].decoder
+    var listener = this._decoders[i].listener
+    // execute decoder
+    var decoding = decoder(self._availableBytes, isFrame)
+    // if decoding was successful
+    if (decoding) {
+      // store remaining bytes (if any) for later use
+      this._availableBytes = decoding.remainingBytes
+      // dispatch packet
+      listener(decoding.packet, rinfo)
+      // if there are remaining bytes, then trigger new parsing round
+      if (this._availableBytes.length !== 0) {
+        this.parseIncomingData(rinfo, isFrame)
+      }
+      // and break
+      break
+    }
   }
 }
 
@@ -153,11 +169,6 @@ StunComm.prototype.onIncomingStunResponse = function (stunPacket) {
 // Incoming STUN indication
 StunComm.prototype.onIncomingStunIndication = function (stunPacket, rinfo) {
   this.emit('indication', stunPacket, rinfo)
-}
-
-// Incoming data that is different from regular STUN packets
-StunComm.prototype.onOtherIncomingMessage = function (bytes, rinfo, isFrame) {
-  this.emit('message', bytes, rinfo, isFrame)
 }
 
 // Error handler
