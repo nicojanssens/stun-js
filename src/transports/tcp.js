@@ -4,17 +4,18 @@ var net = require('net')
 var Q = require('q')
 
 var debug = require('debug')
-var errorLog = debug('stun-js:transports:error')
+var debugLog = debug('stun-js:transports:tcp')
+var errorLog = debug('stun-js:transports:tcp:error')
 
 function TcpWrapper () {
 }
 
 TcpWrapper.prototype.init = function (host, port) {
+  var self = this
   this._host = host
   this._port = port
   this._client = net.createConnection(this._port, this._host)
   this._client.on('error', this._onError)
-  var self = this
   this._client.on('data', function (data) {
     var rinfo = {}
     rinfo.address = self._host
@@ -31,7 +32,15 @@ TcpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
     errorLog(error)
     throw new Error(error)
   }
-  this._client.write(bytes, 'binary', onSuccess)
+  var flushed = this._client.write(bytes, 'binary')
+  if (!flushed) {
+    debugLog('high water')
+    this._client.once('drain', function () {
+      onSuccess()
+    })
+  } else {
+    onSuccess()
+  }
 }
 
 TcpWrapper.prototype.sendP = function (bytes) {
