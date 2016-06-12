@@ -4,7 +4,7 @@ var dgram = require('dgram')
 var Q = require('q')
 
 var debug = require('debug')
-var errorLog = debug('stun-js:transports:error')
+var errorLog = debug('stun-js:transports:udp:error')
 
 function UdpWrapper (socket) {
   this._socket = (socket === undefined) ? dgram.createSocket('udp4') : socket
