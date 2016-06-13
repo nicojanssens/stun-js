@@ -16,26 +16,32 @@ TcpWrapper.prototype.init = function (host, port) {
   this._port = port
   this._client = net.createConnection(this._port, this._host)
   this._client.on('error', this._onError)
-  this._client.on('data', function (data) {
+  this._client.on('data', function (bytes) {
+    debugLog('[conn: ' + self._client.localPort + '] incoming data: ' + bytes.length + ' bytes')
     var rinfo = {}
     rinfo.address = self._host
     rinfo.port = parseInt(self._port, 10)
     rinfo.family = net.isIPv4(self._host) ? 'IPv4' : 'IPv6'
-    rinfo.size = data.length
-    self._onData(data, rinfo, false)
+    rinfo.size = bytes.length
+    self._onData(bytes, rinfo, false)
   })
 }
 
 TcpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
+  debugLog('[conn: ' + this._client.localPort + '] outgoing data: ' + bytes.length + ' bytes')
   if (onSuccess === undefined || onFailure === undefined) {
     var error = 'tcp send bytes callback handlers are undefined'
     errorLog(error)
     throw new Error(error)
   }
-  var flushed = this._client.write(bytes, 'binary')
+  var self = this
+  var flushed = this._client.write(bytes, 'binary', function() {
+    debugLog('[conn: ' + self._client.localPort + '] message sent')
+  })
   if (!flushed) {
-    debugLog('high water')
+    debugLog('[conn: ' + this._client.localPort + '] high water -- buffer size = ' + this._client.bufferSize)
     this._client.once('drain', function () {
+      debugLog('[conn: ' + self._client.localPort + '] drained -- buffer size = ' + self._client.bufferSize)
       onSuccess()
     })
   } else {
