@@ -10,24 +10,9 @@ var expect = chai.expect
 chai.use(chaiAsPromised)
 chai.should()
 
-var argv = require('yargs')
-  .usage('Usage: $0 [params]')
-  .demand('a')
-  .default('a', 'stun.jappix.com')
-  .alias('a', 'addr')
-  .nargs('a', 1)
-  .describe('a', 'STUN server address')
-  .demand('p')
-  .default('p', '3478')
-  .alias('p', 'port')
-  .nargs('p', 1)
-  .describe('p', 'STUN server port')
-  .help('h')
-  .alias('h', 'help')
-  .argv
+var stunAddr = process.env.STUN_ADDR
+var stunPort = process.env.STUN_PORT
 
-var stunAddr = argv.addr
-var stunPort = argv.port
 var socketPort = 10000
 
 describe('#STUN operations', function () {
