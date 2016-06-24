@@ -16,23 +16,16 @@ var stunPort = process.env.STUN_PORT
 var socketPort = 10000
 
 describe('#STUN operations', function () {
-  this.timeout(5000)
+  this.timeout(10000)
 
   it('should execute STUN bind operation over UDP socket using promises', function (done) {
-    // create socket
-    var socket = dgram.createSocket('udp4')
-    socket.on('message', function (message, rinfo) { //
-      done(new Error('message callback should not be fired'))
-    })
-    socket.on('error', function (error) {
-      done(error)
-    })
-    socket.on('listening', function () {
-      // create stun client and pass socket over
-      var transport = new transports.UDP(socket)
-      var client = new StunClient(stunAddr, stunPort, transport)
+    var retransmissionTimer
+    // send a STUN bind request and verify the reply
+    var sendBindRequest = function (client, socket) {
       client.bindP()
         .then(function (mappedAddress) {
+          // end retransmissionTimer
+          clearTimeout(retransmissionTimer)
           // verify the mapped address
           expect(mappedAddress).not.to.be.undefined
           expect(mappedAddress).to.have.property('address')
@@ -51,6 +44,26 @@ describe('#STUN operations', function () {
         .catch(function (error) {
           done(error)
         })
+    }
+    // create socket
+    var socket = dgram.createSocket('udp4')
+    socket.on('message', function (message, rinfo) { //
+      done(new Error('message callback should not be fired'))
+    })
+    socket.on('error', function (error) {
+      done(error)
+    })
+    socket.on('listening', function () {
+      // create stun client and pass socket over
+      var transport = new transports.UDP(socket)
+      var client = new StunClient(stunAddr, stunPort, transport)
+      // retransmission timer -- we're using UDP ...
+      retransmissionTimer = setTimeout(function () {
+        console.log('resending BIND request')
+        sendBindRequest(client, socket)
+      }, 3000)
+      // bind request
+      sendBindRequest(client, socket)
     })
     socket.bind(socketPort)
   })
@@ -77,21 +90,34 @@ describe('#STUN operations', function () {
   })
 
   it('should execute STUN bind operation over unspecified UDP socket using promises', function (done) {
+    var retransmissionTimer
+    // send a STUN bind request and verify the reply
+    var sendBindRequest = function (client) {
+      client.bindP()
+        .then(function (mappedAddress) {
+          // end retransmissionTimer
+          clearTimeout(retransmissionTimer)
+          // verify the mapped address
+          expect(mappedAddress).not.to.be.undefined
+          expect(mappedAddress).to.have.property('address')
+          expect(mappedAddress).to.have.property('port')
+          return client.closeP()
+        })
+        .then(function () {
+          done()
+        })
+        .catch(function (error) {
+          done(error)
+        })
+    }
     // create stun client and pass socket over
     var client = new StunClient(stunAddr, stunPort)
-    client.bindP()
-      .then(function (mappedAddress) {
-        // verify the mapped address
-        expect(mappedAddress).not.to.be.undefined
-        expect(mappedAddress).to.have.property('address')
-        expect(mappedAddress).to.have.property('port')
-        return client.closeP()
-      })
-      .then(function () {
-        done()
-      })
-      .catch(function (error) {
-        done(error)
-      })
+    // retransmission timer -- we're using UDP ...
+    retransmissionTimer = setTimeout(function () {
+      console.log('resending BIND request')
+      sendBindRequest(client)
+    }, 3000)
+    // bind request
+    sendBindRequest(client)
   })
 })
