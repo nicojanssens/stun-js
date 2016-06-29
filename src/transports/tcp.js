@@ -35,7 +35,7 @@ TcpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
     throw new Error(error)
   }
   var self = this
-  var flushed = this._client.write(bytes, 'binary', function() {
+  var flushed = this._client.write(bytes, 'binary', function () {
     debugLog('[conn: ' + self._client.localPort + '] message sent')
   })
   if (!flushed) {
@@ -67,7 +67,7 @@ TcpWrapper.prototype.sendP = function (bytes) {
 }
 
 TcpWrapper.prototype.close = function (done) {
-  this._client.once('close', function() {
+  this._client.once('close', function () {
     if (done) {
       done()
     }

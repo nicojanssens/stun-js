@@ -29,7 +29,7 @@ UdpWrapper.prototype.init = function (host, port) {
     })
   }
   // register our own handlers
-  this._socket.on('message', function(message, rinfo) {
+  this._socket.on('message', function (message, rinfo) {
     self._onData(message, rinfo, true)
   })
   this._socket.on('error', this._onError)
