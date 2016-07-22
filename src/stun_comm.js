@@ -2,22 +2,26 @@
 
 var events = require('events')
 var util = require('util')
-var Q = require('q')
-
-var debug = require('debug')
-var debugLog = debug('stun-js')
-var errorLog = debug('stun-js:error')
-
 var Packet = require('./packet')
+var Q = require('q')
 var UdpTransport = require('./transports/udp')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 // Init client
 var StunComm = function (stunHost, stunPort, transport) {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js'
+  })
+  // verify port and address
   if (stunPort === undefined || stunHost === undefined) {
-    var error = 'stun host and/or port are undefined'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'stun host and/or port are undefined'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
+  // init
   this._responseCallbacks = {}
 
   events.EventEmitter.call(this)
@@ -40,12 +44,12 @@ util.inherits(StunComm, events.EventEmitter)
 
 // Close client
 StunComm.prototype.close = function (done) {
-  debugLog('closing client')
+  this._log.debug('closing client')
   this._transport.close(done)
 }
 
 StunComm.prototype.closeP = function () {
-  debugLog('closing client')
+  this._log.debug('closing client')
   return this._transport.closeP()
 }
 
@@ -90,9 +94,9 @@ StunComm.prototype.sendStunIndicationP = function (bytes) {
 
 StunComm.prototype.sendStunIndication = function (bytes, onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = 'send stun indication callback handlers are undefined'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'send stun indication callback handlers are undefined'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
   this._transport.send(bytes, onSuccess, onFailure)
 }
@@ -101,7 +105,7 @@ StunComm.prototype.sendStunIndication = function (bytes, onSuccess, onFailure) {
 StunComm.prototype.onIncomingData = function () {
   var self = this
   return function (bytes, rinfo, isFrame) {
-    debugLog('receiving data from ' + JSON.stringify(rinfo))
+    self._log.debug('receiving data from ' + JSON.stringify(rinfo))
     self._availableBytes = Buffer.concat([self._availableBytes, bytes])
     self.parseIncomingData(rinfo, isFrame)
   }
@@ -134,20 +138,20 @@ StunComm.prototype.parseIncomingData = function (rinfo, isFrame) {
 StunComm.prototype.dispatchStunPacket = function (stunPacket, rinfo) {
   switch (stunPacket.type) {
     case Packet.TYPE.SUCCESS_RESPONSE:
-      debugLog('incoming STUN success response')
+      this._log.debug('incoming STUN success response')
       this.onIncomingStunResponse(stunPacket)
       break
     case Packet.TYPE.ERROR_RESPONSE:
-      debugLog('incoming STUN success response')
+      this._log.debug('incoming STUN success response')
       this.onIncomingStunResponse(stunPacket)
       break
     case Packet.TYPE.INDICATION:
-      debugLog('incoming STUN indication')
+      this._log.debug('incoming STUN indication')
       this.onIncomingStunIndication(stunPacket, rinfo)
       break
     default:
       var errorMsg = "don't know how to process incoming STUN message -- dropping it on the floor"
-      errorLog(errorMsg)
+      this._log.error(errorMsg)
       throw new Error(errorMsg)
   }
 }
@@ -161,7 +165,7 @@ StunComm.prototype.onIncomingStunResponse = function (stunPacket) {
     delete this._responseCallbacks[stunPacket.tid]
   } else {
     var errorMsg = 'no handler available to process response with tid ' + stunPacket.tid
-    errorLog(errorMsg)
+    this._log.error(errorMsg)
     throw new Error(errorMsg)
   }
 }
@@ -173,9 +177,10 @@ StunComm.prototype.onIncomingStunIndication = function (stunPacket, rinfo) {
 
 // Error handler
 StunComm.prototype.onFailure = function () {
+  var self = this
   return function (error) {
     var errorMsg = 'client error: ' + error
-    errorLog(errorMsg)
+    self._log.error(errorMsg)
     throw new Error(errorMsg)
   }
 }

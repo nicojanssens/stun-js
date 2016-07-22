@@ -2,22 +2,26 @@
 
 var net = require('net')
 var Q = require('q')
-
-var debug = require('debug')
-var debugLog = debug('stun-js:transports:tcp')
-var errorLog = debug('stun-js:transports:tcp:error')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 function TcpWrapper () {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js:transports:tcp'
+  })
 }
 
 TcpWrapper.prototype.init = function (host, port) {
+  // init
   var self = this
   this._host = host
   this._port = port
   this._client = net.createConnection(this._port, this._host)
   this._client.on('error', this._onError)
   this._client.on('data', function (bytes) {
-    debugLog('[conn: ' + self._client.localPort + '] incoming data: ' + bytes.length + ' bytes')
+    self._log.debug('incoming data: ' + bytes.length + ' bytes')
     var rinfo = {}
     rinfo.address = self._host
     rinfo.port = parseInt(self._port, 10)
@@ -25,23 +29,28 @@ TcpWrapper.prototype.init = function (host, port) {
     rinfo.size = bytes.length
     self._onData(bytes, rinfo, false)
   })
+  // localport represents connection
+  this._log.addMeta({
+    conn: this._client.localPort
+  })
+
 }
 
 TcpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
-  debugLog('[conn: ' + this._client.localPort + '] outgoing data: ' + bytes.length + ' bytes')
+  this._log.debug('outgoing data: ' + bytes.length + ' bytes')
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = 'tcp send bytes callback handlers are undefined'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'tcp send bytes callback handlers are undefined'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
   var self = this
   var flushed = this._client.write(bytes, 'binary', function () {
-    debugLog('[conn: ' + self._client.localPort + '] message sent')
+    self._log.debug('message sent')
   })
   if (!flushed) {
-    debugLog('[conn: ' + this._client.localPort + '] high water -- buffer size = ' + this._client.bufferSize)
+    this._log.debug('high water -- buffer size = ' + this._client.bufferSize)
     this._client.once('drain', function () {
-      debugLog('[conn: ' + self._client.localPort + '] drained -- buffer size = ' + self._client.bufferSize)
+      self._log.debug('drained -- buffer size = ' + self._client.bufferSize)
       onSuccess()
     })
   } else {
@@ -59,7 +68,7 @@ TcpWrapper.prototype.sendP = function (bytes) {
     },
     function (error) {
       var errorMsg = 'tcp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
-      errorLog(errorMsg)
+      self._log.error(errorMsg)
       deferred.reject(errorMsg)
     }
   )

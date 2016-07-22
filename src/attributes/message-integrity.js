@@ -1,30 +1,36 @@
 'use strict'
 
 var crypto = require('crypto')
-
-var debug = require('debug')
-var debugLog = debug('stun-js:attributes')
-var errorLog = debug('stun-js:attributes:error')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 var MessageIntegrityAttr = function (request, hash) {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js:attributes'
+  })
+  // verify request
   if (request) {
     if (request.username === undefined || request.password === undefined) {
-      var error = 'invalid message integrity attribute'
-      errorLog(error)
-      throw new Error(error)
+      var errorMsg = 'invalid message integrity attribute'
+      this._log.error(errorMsg)
+      throw new Error(errorMsg)
     }
   }
+  // init
   this.request = request
   this.hash = hash
   this.type = 0x0008
-  debugLog('message integrity attr: request = ' + JSON.stringify(this.request) + ', hash = ' + this.hash)
+  // done
+  this._log.debug('message integrity attr: request = ' + JSON.stringify(this.request) + ', hash = ' + this.hash)
 }
 
 MessageIntegrityAttr.prototype.encode = function (packetBytes) {
   if (packetBytes === undefined) {
-    var error = 'invalid MessageIntegrityAttr.encode attributes'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'invalid MessageIntegrityAttr.encode attributes'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
   // type
   var typeBytes = new Buffer(2)
@@ -52,9 +58,9 @@ MessageIntegrityAttr.prototype.encode = function (packetBytes) {
 
 MessageIntegrityAttr.decode = function (attrBytes) {
   if (attrBytes.length !== 20) {
-    var error = 'invalid message integrity attribute'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'invalid message integrity attribute'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
   var hash = attrBytes.toString('hex')
   return new MessageIntegrityAttr(null, hash)

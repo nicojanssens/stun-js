@@ -1,18 +1,21 @@
 'use strict'
 
-var inherits = require('util').inherits
-var Q = require('q')
-
-var debug = require('debug')
-var debugLog = debug('stun-js')
-var errorLog = debug('stun-js:error')
-
 var Attributes = require('./attributes')
+var inherits = require('util').inherits
 var Packet = require('./packet')
+var Q = require('q')
 var StunComm = require('./stun_comm')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 // Constructor
 var StunClient = function (stunHost, stunPort, transport) {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js'
+  })
+  // inheritance
   StunComm.call(this, stunHost, stunPort, transport)
 }
 
@@ -46,9 +49,9 @@ StunClient.prototype.bindP = function () {
 
 StunClient.prototype.bind = function (onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = 'bind callback handlers are undefined'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'bind callback handlers are undefined'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
   this.bindP()
     .then(function (result) {
@@ -63,17 +66,17 @@ StunClient.prototype.bind = function (onSuccess, onFailure) {
 
 // Send STUN bind request
 StunClient.prototype.sendBindRequestP = function () {
-  debugLog('send bind request (using promises)')
+  this._log.debug('send bind request (using promises)')
   var message = composeBindRequest()
   return this.sendStunRequestP(message)
 }
 
 StunClient.prototype.sendBindRequest = function (onSuccess, onFailure) {
-  debugLog('send bind request')
+  this._log.debug('send bind request')
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = 'send bind request callback handlers are undefined'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'send bind request callback handlers are undefined'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
   this.sendBindRequestP()
     .then(function (reply) {
@@ -86,17 +89,17 @@ StunClient.prototype.sendBindRequest = function (onSuccess, onFailure) {
 
 // Send STUN bind indication
 StunClient.prototype.sendBindIndicationP = function () {
-  debugLog('send bind indication (using promises)')
+  this._log.debug('send bind indication (using promises)')
   var message = composeBindIndication()
   return this.sendStunIndicationP(message)
 }
 
 StunClient.prototype.sendBindIndication = function (onSuccess, onFailure) {
-  debugLog('send bind indication')
+  this._log.debug('send bind indication')
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = 'send bind indication callback handlers are undefined'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'send bind indication callback handlers are undefined'
+    this._log.debug(errorMsg)
+    throw new Error(errorMsg)
   }
   this.sendBindIndicationP()
     .then(function (reply) {

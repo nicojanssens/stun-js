@@ -2,16 +2,22 @@
 
 var dgram = require('dgram')
 var Q = require('q')
-
-var debug = require('debug')
-var errorLog = debug('stun-js:transports:udp:error')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 function UdpWrapper (socket) {
+  // create dgram if socker is undefined
   this._socket = (socket === undefined) ? dgram.createSocket('udp4') : socket
   this._externalSocket = (socket !== undefined)
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js:transports:udp'
+  })
 }
 
 UdpWrapper.prototype.init = function (host, port) {
+  // init
   this._host = host
   this._port = port
   var self = this
@@ -37,9 +43,9 @@ UdpWrapper.prototype.init = function (host, port) {
 
 UdpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
   if (onSuccess === undefined || onFailure === undefined) {
-    var error = 'udp send bytes callback handlers are undefined'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'udp send bytes callback handlers are undefined'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
   this._socket.send(bytes, 0, bytes.length, this._port, this._host, function (error) {
     if (error) {
@@ -60,7 +66,7 @@ UdpWrapper.prototype.sendP = function (bytes) {
     },
     function (error) {
       var errorMsg = 'udp wrapper could not send bytes to ' + self._host + ':' + self._port + '. ' + error
-      errorLog(errorMsg)
+      self._log.error(errorMsg)
       deferred.reject(errorMsg)
     }
   )

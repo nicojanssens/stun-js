@@ -1,22 +1,27 @@
 'use strict'
 
 var addressAttr = require('./address')
-
-var debug = require('debug')
-var debugLog = debug('stun-js:attributes')
-var errorLog = debug('stun-js:attributes:error')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 var AlternateServerAttr = function (address, port) {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js:attributes'
+  })
+  // verify address and port
   if (port === undefined || address === undefined) {
-    var error = 'invalid alternate server attribute'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'invalid alternate server attribute'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
+  // init
   this.address = address
   this.port = port
   this.type = 0x8023
-
-  debugLog('alternate server attr: address = ' + this.address + ', port = ' + this.port)
+  // done
+  this._log.debug('alternate server attr: address = ' + this.address + ', port = ' + this.port)
 }
 
 AlternateServerAttr.prototype.encode = function () {

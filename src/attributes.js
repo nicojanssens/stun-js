@@ -1,11 +1,17 @@
 'use strict'
 
-var debug = require('debug')
-var debugLog = debug('stun-js')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 // Attributes Class
 var Attributes = function () {
+  // init
   this.attrs = []
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js'
+  })
 }
 
 // RFC 5389 (STUN) attributes
@@ -98,7 +104,11 @@ Attributes.decode = function (attrsBuffer, headerBuffer) {
       var attr = decoder.decode(attrBytes, headerBuffer)
       attrs.add(attr)
     } else {
-      debugLog("don't know how to process attribute " + type.toString(16) + '. Ignoring ...')
+      var log = winstonWrapper(winston)
+      log.addMeta({
+        module: 'stun-js'
+      })
+      log.debug("don't know how to process attribute " + type.toString(16) + '. Ignoring ...')
     }
   }
 

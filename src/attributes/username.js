@@ -1,20 +1,26 @@
 'use strict'
 
 var padding = require('./padding')
-
-var debug = require('debug')
-var debugLog = debug('stun-js:attributes')
-var errorLog = debug('stun-js:attributes:error')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 var UsernameAttr = function (name) {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js:attributes'
+  })
+  // verify name
   if (name === undefined) {
-    var error = 'invalid username attribute'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'invalid username attribute'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
+  // init
   this.name = name
   this.type = 0x0006
-  debugLog('username attr: ' + this.name)
+  // debug
+  this._log.debug('username attr: ' + this.name)
 }
 
 UsernameAttr.prototype.encode = function () {

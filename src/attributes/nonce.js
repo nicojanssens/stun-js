@@ -1,20 +1,26 @@
 'use strict'
 
 var padding = require('./padding')
-
-var debug = require('debug')
-var debugLog = debug('stun-js:attributes')
-var errorLog = debug('stun-js:attributes:error')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 var NonceAttr = function (value) {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js:attributes'
+  })
+  // verify value
   if (value === undefined) {
-    var error = 'invalid nonce attribute'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'invalid nonce attribute'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
+  // init
   this.value = value
   this.type = 0x0015
-  debugLog('nonce attr: ' + this.value)
+  // done
+  this._log.debug('nonce attr: ' + this.value)
 }
 
 NonceAttr.prototype.encode = function () {

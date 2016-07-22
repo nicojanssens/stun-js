@@ -1,33 +1,39 @@
 'use strict'
 
 var padding = require('./padding')
-
-var debug = require('debug')
-var debugLog = debug('stun-js:attributes')
-var errorLog = debug('stun-js:attributes:error')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 var ErrorCodeAttr = function (code, reason) {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js:attributes'
+  })
+  // verify error code
   if (code === undefined) {
     var undefinedCodeError = 'invalid error code attribute'
-    errorLog(undefinedCodeError)
+    this._log.error(undefinedCodeError)
     throw new Error(undefinedCodeError)
   }
   if (code < 300 || code >= 700) {
     var invalidCodeError = 'invalid error code'
-    errorLog(invalidCodeError)
+    this._log.error(invalidCodeError)
     return new Error(invalidCodeError)
   }
+  // verify reason
   reason = reason || ErrorCodeAttr.REASON[code]
   if (reason.length >= 128) {
     var invalidReasonError = 'invalid error reason'
-    errorLog(invalidReasonError)
+    this._log.error(invalidReasonError)
     return new Error(invalidReasonError)
   }
+  // init
   this.code = code
   this.reason = reason
   this.type = 0x0009
-
-  debugLog('error code attr: code = ' + this.code + ', reason = ' + this.reason)
+  // done
+  this._log.debug('error code attr: code = ' + this.code + ', reason = ' + this.reason)
 }
 
 // error codes

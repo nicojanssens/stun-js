@@ -1,20 +1,26 @@
 'use strict'
 
 var padding = require('./padding')
-
-var debug = require('debug')
-var debugLog = debug('stun-js:attributes')
-var errorLog = debug('stun-js:attributes:error')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 var SoftwareAttr = function (description) {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js:attributes'
+  })
+  // verify description
   if (description === undefined) {
-    var error = 'invalid software attribute'
-    errorLog(error)
-    throw new Error(error)
+    var errorMsg = 'invalid software attribute'
+    this._log.error(errorMsg)
+    throw new Error(errorMsg)
   }
+  // init
   this.description = description
   this.type = 0x8022
-  debugLog('software attr: ' + this.description)
+  // done
+  this._log.debug('software attr: ' + this.description)
 }
 
 SoftwareAttr.prototype.encode = function () {

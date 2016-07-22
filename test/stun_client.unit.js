@@ -4,6 +4,9 @@ var dgram = require('dgram')
 var StunClient = require('../src/stun_client')
 var transports = require('../src/transports')
 
+var winston = require('winston')
+winston.level = 'debug'
+
 var chai = require('chai')
 var chaiAsPromised = require('chai-as-promised')
 var expect = chai.expect

@@ -1,13 +1,19 @@
 'use strict'
 
-var debug = require('debug')
-
-var debugLog = debug('stun-js:attributes')
+var winston = require('winston')
+var winstonWrapper = require('winston-meta-wrapper')
 
 var UnknownAttributesAttr = function (value) {
+  // logging
+  this._log = winstonWrapper(winston)
+  this._log.addMeta({
+    module: 'stun-js:attributes'
+  })
+  // init
   this.value = value
   this.type = 0x000A
-  debugLog('unknown attributes attr: ' + JSON.stringify(this.value))
+  // done
+  this._log.debug('unknown attributes attr: ' + JSON.stringify(this.value))
 }
 
 UnknownAttributesAttr.prototype.encode = function () {

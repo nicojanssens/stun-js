@@ -17,9 +17,10 @@
     "node": ">=4.x.x"
   },
   "dependencies": {
-    "debug": "^2.2.0",
     "ip": "^1.1.0",
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "winston": "^2.2.0",
+    "winston-meta-wrapper": "^1.0.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
