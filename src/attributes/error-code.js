@@ -8,7 +8,7 @@ var ErrorCodeAttr = function (code, reason) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:attributes'
+    module: 'stun:attributes'
   })
   // verify error code
   if (code === undefined) {

@@ -13,7 +13,7 @@ var StunComm = function (stunHost, stunPort, transport) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:client'
+    module: 'stun:client'
   })
   // verify port and address
   if (stunPort === undefined || stunHost === undefined) {

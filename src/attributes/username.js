@@ -8,7 +8,7 @@ var UsernameAttr = function (name) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:attributes'
+    module: 'stun:attributes'
   })
   // verify name
   if (name === undefined) {

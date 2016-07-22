@@ -6,7 +6,7 @@ var winstonWrapper = require('winston-meta-wrapper')
 
 var _log = winstonWrapper(winston)
 _log.addMeta({
-  module: 'stun-js:packet'
+  module: 'stun:packet'
 })
 
 // packet class
@@ -14,7 +14,7 @@ var Packet = function (method, type, attrs) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:packet'
+    module: 'stun:packet'
   })
   // assertions
   if (!containsValue(Packet.METHOD, method)) {

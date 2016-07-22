@@ -8,7 +8,7 @@ var XORMappedAddressAttr = function (address, port) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:attributes'
+    module: 'stun:attributes'
   })
   // verify address and port
   if (address === undefined || port === undefined) {

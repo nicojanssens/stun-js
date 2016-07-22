@@ -5,7 +5,7 @@ var winstonWrapper = require('winston-meta-wrapper')
 
 var _log = winstonWrapper(winston)
 _log.addMeta({
-  module: 'stun-js:attributes'
+  module: 'stun:attributes'
 })
 
 // Attributes Class
@@ -15,7 +15,7 @@ var Attributes = function () {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:attributes'
+    module: 'stun:attributes'
   })
 }
 

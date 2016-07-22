@@ -8,7 +8,7 @@ var RealmAttr = function (value) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:attributes'
+    module: 'stun:attributes'
   })
   // verify value
   if (value === undefined || value === '') {

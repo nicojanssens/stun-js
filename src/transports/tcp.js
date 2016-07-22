@@ -9,7 +9,7 @@ function TcpWrapper () {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:transports:tcp'
+    module: 'stun:transports:tcp'
   })
 }
 

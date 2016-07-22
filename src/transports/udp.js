@@ -12,7 +12,7 @@ function UdpWrapper (socket) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:transports:udp'
+    module: 'stun:transports:udp'
   })
 }
 

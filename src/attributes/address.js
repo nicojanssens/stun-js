@@ -11,7 +11,7 @@ var winstonWrapper = require('winston-meta-wrapper')
 
 var _log = winstonWrapper(winston)
 _log.addMeta({
-  module: 'stun-js:attributes'
+  module: 'stun:attributes'
 })
 
 var IPv4 = 0x01

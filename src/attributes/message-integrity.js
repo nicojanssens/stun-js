@@ -8,7 +8,7 @@ var MessageIntegrityAttr = function (request, hash) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js:attributes'
+    module: 'stun:attributes'
   })
   // verify request
   if (request) {
