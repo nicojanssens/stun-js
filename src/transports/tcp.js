@@ -29,11 +29,12 @@ TcpWrapper.prototype.init = function (host, port) {
     rinfo.size = bytes.length
     self._onData(bytes, rinfo, false)
   })
-  // localport represents connection
-  this._log.addMeta({
-    conn: this._client.localPort
+  this._client.on('connect', function () {
+    // localport represents connection
+    self._log.addMeta({
+      conn: self._client.localPort
+    })
   })
-
 }
 
 TcpWrapper.prototype.send = function (bytes, onSuccess, onFailure) {
