@@ -4,12 +4,17 @@ var Attributes = require('./attributes')
 var winston = require('winston')
 var winstonWrapper = require('winston-meta-wrapper')
 
+var _log = winstonWrapper(winston)
+_log.addMeta({
+  module: 'stun-js:packet'
+})
+
 // packet class
 var Packet = function (method, type, attrs) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js'
+    module: 'stun-js:packet'
   })
   // assertions
   if (!containsValue(Packet.METHOD, method)) {
@@ -69,18 +74,14 @@ Packet.prototype.encode = function () {
 
 // decode packet
 Packet.decode = function (bytes, isFrame) {
-  var log = winstonWrapper(winston)
-  log.addMeta({
-    module: 'stun-js'
-  })
   // check if packet starts with 0b00
   if (!Packet._isStunPacket(bytes)) {
-    log.debug('this is not a STUN packet')
+    _log.debug('this is not a STUN packet')
     return
   }
   // check if buffer contains enough bytes to parse header
   if (bytes.length < Packet.HEADER_LENGTH) {
-    log.debug('not enough bytes to parse STUN header, giving up')
+    _log.debug('not enough bytes to parse STUN header, giving up')
     return
   }
   // parse header
@@ -89,17 +90,17 @@ Packet.decode = function (bytes, isFrame) {
   // check magic cookie
   if (header.magic !== Packet.MAGIC_COOKIE) {
     var incorrectMagicCookieError = 'magic cookie field has incorrect value'
-    log.error(incorrectMagicCookieError)
+    _log.error(incorrectMagicCookieError)
     throw new Error(incorrectMagicCookieError)
   }
   // check if length attribute is valid
   if (header.length % 4 !== 0) {
-    log.debug('attributes are not padded to a multiple of 4 bytes, giving up')
+    _log.debug('attributes are not padded to a multiple of 4 bytes, giving up')
     return
   }
   // check if buffer contains enough bytes to parse Attributes
   if (bytes.length < Packet.HEADER_LENGTH + header.length) {
-    log.debug('not enough bytes to parse attributes, giving up')
+    _log.debug('not enough bytes to parse attributes, giving up')
     return
   }
   var attrsBytes = bytes.slice(Packet.HEADER_LENGTH, Packet.HEADER_LENGTH + header.length)
@@ -114,7 +115,7 @@ Packet.decode = function (bytes, isFrame) {
   // do we expect remaining bytes?
   if (isFrame && result.remainingBytes.length !== 0) {
     var errorMsg = 'not expecting remaining bytes after processing full frame packet'
-    log.error(errorMsg)
+    _log.error(errorMsg)
     throw new Error(errorMsg)
   }
   // done

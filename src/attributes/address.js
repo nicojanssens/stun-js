@@ -9,8 +9,8 @@ var ip = require('ip')
 var winston = require('winston')
 var winstonWrapper = require('winston-meta-wrapper')
 
-var log = winstonWrapper(winston)
-log.addMeta({
+var _log = winstonWrapper(winston)
+_log.addMeta({
   module: 'stun-js:attributes'
 })
 
@@ -21,17 +21,17 @@ function encode (address, port) {
   // checks
   if (address === undefined || port === undefined) {
     var attrError = 'invalid address attribute'
-    log.error(attrError)
+    _log.error(attrError)
     throw new Error(attrError)
   }
   if (!ip.isV4Format(address) && !ip.isV6Format(address)) {
     var hostError = 'invalid address host'
-    log.error(hostError)
+    _log.error(hostError)
     throw new Error(hostError)
   }
   if (port < 0 || port > 65536) {
     var portError = 'invalid address port'
-    log.error(portError)
+    _log.error(portError)
     throw new Error(portError)
   }
   // create family type
@@ -53,22 +53,22 @@ function encodeXor (address, port, magic, tid) {
   // checks
   if (address === undefined || port === undefined) {
     var attrError = 'invalid address attribute'
-    log.error(attrError)
+    _log.error(attrError)
     throw new Error(attrError)
   }
   if (!ip.isV4Format(address) && !ip.isV6Format(address)) {
     var hostError = 'invalid address host'
-    log.error(hostError)
+    _log.error(hostError)
     throw new Error(hostError)
   }
   if (port < 0 || port > 65536) {
     var portError = 'invalid address port'
-    log.error(portError)
+    _log.error(portError)
     throw new Error(portError)
   }
   if (magic === undefined || tid === undefined) {
     var keyError = 'invalid xor keys'
-    log.error(keyError)
+    _log.error(keyError)
     throw new Error(keyError)
   }
   // magic and tid bytes -- needed for xor mapping

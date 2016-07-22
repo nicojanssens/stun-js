@@ -13,7 +13,7 @@ var StunClient = function (stunHost, stunPort, transport) {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js'
+    module: 'stun-js:client'
   })
   // inheritance
   StunComm.call(this, stunHost, stunPort, transport)

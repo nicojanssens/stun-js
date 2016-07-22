@@ -3,6 +3,11 @@
 var winston = require('winston')
 var winstonWrapper = require('winston-meta-wrapper')
 
+var _log = winstonWrapper(winston)
+_log.addMeta({
+  module: 'stun-js:attributes'
+})
+
 // Attributes Class
 var Attributes = function () {
   // init
@@ -10,7 +15,7 @@ var Attributes = function () {
   // logging
   this._log = winstonWrapper(winston)
   this._log.addMeta({
-    module: 'stun-js'
+    module: 'stun-js:attributes'
   })
 }
 
@@ -104,11 +109,7 @@ Attributes.decode = function (attrsBuffer, headerBuffer) {
       var attr = decoder.decode(attrBytes, headerBuffer)
       attrs.add(attr)
     } else {
-      var log = winstonWrapper(winston)
-      log.addMeta({
-        module: 'stun-js'
-      })
-      log.debug("don't know how to process attribute " + type.toString(16) + '. Ignoring ...')
+      _log.debug("don't know how to process attribute " + type.toString(16) + '. Ignoring ...')
     }
   }
 
