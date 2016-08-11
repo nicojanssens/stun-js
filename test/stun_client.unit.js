@@ -1,8 +1,8 @@
 'use strict'
 
 var dgram = require('dgram')
-var StunClient = require('../src/stun_client')
-var transports = require('../src/transports')
+var StunClient = require('../lib/stun_client')
+var transports = require('../lib/transports')
 
 var winston = require('winston')
 winston.level = 'debug'

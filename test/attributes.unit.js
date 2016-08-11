@@ -1,7 +1,7 @@
 'use strict'
 
-var Attributes = require('../src/attributes')
-var Packet = require('../src/packet')
+var Attributes = require('../lib/attributes')
+var Packet = require('../lib/packet')
 
 var chai = require('chai')
 var expect = chai.expect
@@ -10,7 +10,7 @@ describe('#STUN attributes', function () {
   it('should encode and decode an address attribute', function (done) {
     var testAddress = '127.0.0.1'
     var testPort = 2345
-    var address = require('../src/attributes/address')
+    var address = require('../lib/attributes/address')
     var bytes = address.encode(testAddress, testPort)
     var decodedAddress = address.decode(bytes)
     expect(decodedAddress.family).to.equal(4)

@@ -1,6 +1,6 @@
 'use strict'
 
-var Packet = require('../src/packet')
+var Packet = require('../lib/packet')
 
 var chai = require('chai')
 var expect = chai.expect

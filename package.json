@@ -19,7 +19,7 @@
   "browser": {
     "dgram": "chrome-dgram",
     "net": "chrome-net",
-    "winston": "./src/logger"
+    "winston": "./lib/logger"
   },
   "dependencies": {
     "chrome-dgram": "^3.0.0",
