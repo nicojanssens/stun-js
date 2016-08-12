@@ -1,6 +1,6 @@
 {
   "name": "stun-js",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "STUN (Session Traversal Utilities for NAT) library written entirely in JavaScript",
   "main": "index.js",
   "keywords": [
