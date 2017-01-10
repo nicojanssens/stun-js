@@ -14,7 +14,7 @@ chai.use(chaiAsPromised)
 chai.should()
 
 var stunAddr = process.env.STUN_ADDR
-var stunPort = process.env.STUN_PORT
+var stunPort = parseInt(process.env.STUN_PORT)
 
 var socketPort = 20000
 
@@ -60,13 +60,15 @@ describe('#STUN operations', function () {
       // create stun client and pass socket over
       var transport = new transports.UDP(socket)
       var client = new StunClient(stunAddr, stunPort, transport)
-      // retransmission timer -- we're using UDP ...
-      retransmissionTimer = setTimeout(function () {
-        console.log('resending BIND request')
+      client.init(function () {
+        // retransmission timer -- we're using UDP ...
+        retransmissionTimer = setTimeout(function () {
+          console.log('resending BIND request')
+          sendBindRequest(client, socket)
+        }, 3000)
+        // bind request
         sendBindRequest(client, socket)
-      }, 3000)
-      // bind request
-      sendBindRequest(client, socket)
+      })
     })
     socket.bind(socketPort)
   })
@@ -96,8 +98,10 @@ describe('#STUN operations', function () {
       // create stun client and pass socket over
       var transport = new transports.UDP(socket)
       var client = new StunClient('1.2.3.4', stunPort, transport)
-      // bind request
-      sendBindRequest(client, socket)
+      client.init(function () {
+        // bind request
+        sendBindRequest(client, socket)
+      })
     })
     socket.bind(socketPort)
   })
@@ -120,7 +124,9 @@ describe('#STUN operations', function () {
       })
     }
     // execute bind operation
-    client.bind(onBindSuccess, onFailure)
+    client.init(function () {
+      client.bind(onBindSuccess, onFailure)
+    })
   })
 
   // it('should execute STUN bind operation over TCP socket using callbacks + un-existing server', function (done) {
@@ -141,7 +147,9 @@ describe('#STUN operations', function () {
   //     })
   //   }
   //   // execute bind operation
-  //   client.bind(onBindSuccess, onFailure)
+  //   client.init(function () {
+  //     client.bind(onBindSuccess, onFailure)
+  //   })
   // })
 
   it('should execute STUN bind operation over unspecified UDP socket using promises', function (done) {
@@ -167,12 +175,14 @@ describe('#STUN operations', function () {
     }
     // create stun client and pass socket over
     var client = new StunClient(stunAddr, stunPort)
-    // retransmission timer -- we're using UDP ...
-    retransmissionTimer = setTimeout(function () {
-      console.log('resending BIND request')
+    client.init(function () {
+      // retransmission timer -- we're using UDP ...
+      retransmissionTimer = setTimeout(function () {
+        console.log('resending BIND request')
+        sendBindRequest(client)
+      }, 3000)
+      // bind request
       sendBindRequest(client)
-    }, 3000)
-    // bind request
-    sendBindRequest(client)
+    })
   })
 })

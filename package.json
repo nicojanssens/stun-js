@@ -22,6 +22,7 @@
     "winston": "winston-browser"
   },
   "dependencies": {
+    "args-js": "^0.10.12",
     "chrome-dgram": "3.0.1",
     "chrome-net": "3.3.0",
     "ip": "^1.1.4",
