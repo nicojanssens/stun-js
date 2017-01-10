@@ -13,6 +13,13 @@ var expect = chai.expect
 chai.use(chaiAsPromised)
 chai.should()
 
+if (!process.env.STUN_ADDR) {
+  throw new Error('STUN_ADDR undefined -- giving up')
+}
+if (!process.env.STUN_PORT) {
+  throw new Error('STUN_PORT undefined -- giving up')
+}
+
 var stunAddr = process.env.STUN_ADDR
 var stunPort = parseInt(process.env.STUN_PORT)
 
