@@ -4,7 +4,7 @@ var dgram = require('dgram')
 var StunClient = require('../lib/stun_client')
 var transports = require('../lib/transports')
 
-var winston = require('winston')
+var winston = require('winston-debug')
 winston.level = 'debug'
 
 var chai = require('chai')
