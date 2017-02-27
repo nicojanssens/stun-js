@@ -237,7 +237,6 @@ describe('#STUN operations', function () {
     client.init(function () {
       done('did not expect init operation to succeed')
     }, function (error) {
-      console.log(error.message)
       expect(error.message).to.be.a('string')
       expect(error.message).to.include('TCP connection timeout')
       done()
