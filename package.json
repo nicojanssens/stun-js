@@ -26,6 +26,7 @@
     "chrome-dgram": "3.0.1",
     "chrome-net": "3.3.0",
     "ip": "^1.1.4",
+    "merge": "^1.2.0",
     "q": "1.4.1",
     "winston": "^2.3.1",
     "winston-browser": "1.0.0",
