@@ -136,28 +136,113 @@ describe('#STUN operations', function () {
     })
   })
 
-  // it('should execute STUN bind operation over TCP socket using callbacks + un-existing server', function (done) {
-  //   var transport = new transports.TCP()
-  //   var client = new StunClient('1.2.3.4', stunPort, transport)
-  //   // if something fails
-  //   var onFailure = function (error) {
-  //     done(error)
-  //   }
-  //   // check bind results
-  //   var onBindSuccess = function (mappedAddress) {
-  //     expect(mappedAddress).not.to.be.undefined
-  //     expect(mappedAddress).to.have.property('address')
-  //     expect(mappedAddress).to.have.property('port')
-  //     // expect(mappedAddress.address).to.equal(testGW)
-  //     client.close(function () {
-  //       done()
-  //     })
-  //   }
-  //   // execute bind operation
-  //   client.init(function () {
-  //     client.bind(onBindSuccess, onFailure)
-  //   })
-  // })
+  it('should execute multiple concurrent STUN bind operations over TCP sockets using callbacks', function (done) {
+    var nbClients = 10
+    var clients = []
+    var nbBindSuccesses = 0
+    var nbClientsClosed = 0
+
+    var createClient = function () {
+      var transport = new transports.TCP()
+      var client = new StunClient(stunAddr, stunPort, transport)
+      // if something fails
+      var onFailure = function (error) {
+        done(error)
+      }
+      // check bind results
+      var onBindSuccess = function (mappedAddress) {
+        expect(mappedAddress).not.to.be.undefined
+        expect(mappedAddress).to.have.property('address')
+        expect(mappedAddress).to.have.property('port')
+        nbBindSuccesses++
+        if (nbBindSuccesses === nbClients) {
+          closeAllClients()
+        }
+      }
+      // execute bind operation
+      client.init(function () {
+        client.bind(onBindSuccess, onFailure)
+      })
+      // store client ref
+      clients.push(client)
+    }
+
+    var closeAllClients = function () {
+      clients.forEach(function (client) {
+        client.close(function () {
+          nbClientsClosed++
+          if (nbClientsClosed === nbClients) {
+            done()
+          }
+        })
+      })
+    }
+
+    for (var i = 0; i < nbClients; i++) {
+      createClient()
+    }
+  })
+
+  it('should execute multiple concurrent STUN bind operations over UDP sockets using callbacks', function (done) {
+    var nbClients = 10
+    var clients = []
+    var nbBindSuccesses = 0
+    var nbClientsClosed = 0
+
+    var createClient = function () {
+      var transport = new transports.UDP()
+      var client = new StunClient(stunAddr, stunPort, transport)
+      // if something fails
+      var onFailure = function (error) {
+        done(error)
+      }
+      // check bind results
+      var onBindSuccess = function (mappedAddress) {
+        expect(mappedAddress).not.to.be.undefined
+        expect(mappedAddress).to.have.property('address')
+        expect(mappedAddress).to.have.property('port')
+        nbBindSuccesses++
+        if (nbBindSuccesses === nbClients) {
+          closeAllClients()
+        }
+      }
+      // execute bind operation
+      client.init(function () {
+        client.bind(onBindSuccess, onFailure)
+      })
+      // store client ref
+      clients.push(client)
+    }
+
+    var closeAllClients = function () {
+      clients.forEach(function (client) {
+        client.close(function () {
+          nbClientsClosed++
+          if (nbClientsClosed === nbClients) {
+            done()
+          }
+        })
+      })
+    }
+
+    for (var i = 0; i < nbClients; i++) {
+      createClient()
+    }
+  })
+
+  it('should execute STUN bind operation over TCP socket using callbacks + un-existing server', function (done) {
+    var transport = new transports.TCP()
+    var client = new StunClient('1.2.3.4', stunPort, transport)
+    // execute bind operation
+    client.init(function () {
+      done('did not expect init operation to succeed')
+    }, function (error) {
+      console.log(error.message)
+      expect(error.message).to.be.a('string')
+      expect(error.message).to.include('TCP connection timeout')
+      done()
+    })
+  })
 
   it('should execute STUN bind operation over unspecified UDP socket using promises', function (done) {
     var retransmissionTimer
