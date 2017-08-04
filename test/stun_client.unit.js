@@ -1,15 +1,13 @@
-'use strict'
+const dgram = require('dgram');
+const StunClient = require('../lib/stun_client');
+const transports = require('../lib/transports');
 
-var dgram = require('dgram')
-var StunClient = require('../lib/stun_client')
-var transports = require('../lib/transports')
-
-var winston = require('winston-debug')
+const winston = require('winston-debug');
 winston.level = 'debug'
 
-var chai = require('chai')
-var chaiAsPromised = require('chai-as-promised')
-var expect = chai.expect
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+const expect = chai.expect;
 chai.use(chaiAsPromised)
 chai.should()
 
@@ -20,20 +18,20 @@ if (!process.env.STUN_PORT) {
   throw new Error('STUN_PORT undefined -- giving up')
 }
 
-var stunAddr = process.env.STUN_ADDR
-var stunPort = parseInt(process.env.STUN_PORT)
+const stunAddr = process.env.STUN_ADDR;
+const stunPort = parseInt(process.env.STUN_PORT);
 
-var socketPort = 20000
+const socketPort = 20000;
 
 describe('#STUN operations', function () {
   this.timeout(10000)
 
-  it('should execute STUN bind operation over UDP socket using promises', function (done) {
-    var retransmissionTimer
+  it('should execute STUN bind operation over UDP socket using promises', done => {
+    let retransmissionTimer;
     // send a STUN bind request and verify the reply
-    var sendBindRequest = function (client, socket) {
+    const sendBindRequest = (client, socket) => {
       client.bindP()
-        .then(function (mappedAddress) {
+        .then(mappedAddress => {
           // end retransmissionTimer
           clearTimeout(retransmissionTimer)
           // verify the mapped address
@@ -42,34 +40,34 @@ describe('#STUN operations', function () {
           expect(mappedAddress).to.have.property('port')
           return client.closeP()
         })
-        .then(function () {
+        .then(() => {
           // check the socket's event listeners (should not include any STUN client handler)
           expect(socket.listeners('message').length).to.equal(1)
           expect(socket.listeners('error').length).to.equal(1)
           // close socket
-          socket.close(function () {
+          socket.close(() => {
             done()
           })
         })
-        .catch(function (error) {
+        .catch(error => {
           done(error)
         })
-    }
+    };
     // create socket
-    var socket = dgram.createSocket('udp4')
-    socket.on('message', function (message, rinfo) { //
+    const socket = dgram.createSocket('udp4');
+    socket.on('message', (message, rinfo) => { //
       done(new Error('message callback should not be fired'))
     })
-    socket.on('error', function (error) {
+    socket.on('error', error => {
       done(error)
     })
-    socket.on('listening', function () {
+    socket.on('listening', () => {
       // create stun client and pass socket over
-      var transport = new transports.UDP(socket)
-      var client = new StunClient(stunAddr, stunPort, transport)
-      client.init(function () {
+      const transport = new transports.UDP(socket);
+      const client = new StunClient(stunAddr, stunPort, transport);
+      client.init(() => {
         // retransmission timer -- we're using UDP ...
-        retransmissionTimer = setTimeout(function () {
+        retransmissionTimer = setTimeout(() => {
           console.log('resending BIND request')
           sendBindRequest(client, socket)
         }, 3000)
@@ -80,32 +78,32 @@ describe('#STUN operations', function () {
     socket.bind(socketPort)
   })
 
-  it('should execute STUN bind operation over UDP socket using promises + un-existing server', function (done) {
-    var retransmissionTimer
+  it('should execute STUN bind operation over UDP socket using promises + un-existing server', done => {
+    let retransmissionTimer;
     // send a STUN bind request and verify the reply
-    var sendBindRequest = function (client, socket) {
+    const sendBindRequest = (client, socket) => {
       client.bindP()
-        .then(function () {
+        .then(() => {
           done(new Error('promise should not resolve'))
         })
-        .catch(function (error) {
+        .catch(error => {
           expect(error).not.to.be.undefined
           done()
         })
-    }
+    };
     // create socket
-    var socket = dgram.createSocket('udp4')
-    socket.on('message', function (message, rinfo) { //
+    const socket = dgram.createSocket('udp4');
+    socket.on('message', (message, rinfo) => { //
       done(new Error('message callback should not be fired'))
     })
-    socket.on('error', function (error) {
+    socket.on('error', error => {
       done(error)
     })
-    socket.on('listening', function () {
+    socket.on('listening', () => {
       // create stun client and pass socket over
-      var transport = new transports.UDP(socket)
-      var client = new StunClient('1.2.3.4', stunPort, transport)
-      client.init(function () {
+      const transport = new transports.UDP(socket);
+      const client = new StunClient('1.2.3.4', stunPort, transport);
+      client.init(() => {
         // bind request
         sendBindRequest(client, socket)
       })
@@ -113,44 +111,44 @@ describe('#STUN operations', function () {
     socket.bind(socketPort)
   })
 
-  it('should execute STUN bind operation over TCP socket using callbacks', function (done) {
-    var transport = new transports.TCP()
-    var client = new StunClient(stunAddr, stunPort, transport)
+  it('should execute STUN bind operation over TCP socket using callbacks', done => {
+    const transport = new transports.TCP();
+    const client = new StunClient(stunAddr, stunPort, transport);
     // if something fails
-    var onFailure = function (error) {
+    const onFailure = error => {
       done(error)
-    }
+    };
     // check bind results
-    var onBindSuccess = function (mappedAddress) {
+    const onBindSuccess = mappedAddress => {
       expect(mappedAddress).not.to.be.undefined
       expect(mappedAddress).to.have.property('address')
       expect(mappedAddress).to.have.property('port')
       // expect(mappedAddress.address).to.equal(testGW)
-      client.close(function () {
+      client.close(() => {
         done()
       })
-    }
+    };
     // execute bind operation
-    client.init(function () {
+    client.init(() => {
       client.bind(onBindSuccess, onFailure)
     })
   })
 
-  it('should execute multiple concurrent STUN bind operations over TCP sockets using callbacks', function (done) {
-    var nbClients = 10
-    var clients = []
-    var nbBindSuccesses = 0
-    var nbClientsClosed = 0
+  it('should execute multiple concurrent STUN bind operations over TCP sockets using callbacks', done => {
+    const nbClients = 10;
+    const clients = [];
+    let nbBindSuccesses = 0;
+    let nbClientsClosed = 0;
 
-    var createClient = function () {
-      var transport = new transports.TCP()
-      var client = new StunClient(stunAddr, stunPort, transport)
+    const createClient = () => {
+      const transport = new transports.TCP();
+      const client = new StunClient(stunAddr, stunPort, transport);
       // if something fails
-      var onFailure = function (error) {
+      const onFailure = error => {
         done(error)
-      }
+      };
       // check bind results
-      var onBindSuccess = function (mappedAddress) {
+      const onBindSuccess = mappedAddress => {
         expect(mappedAddress).not.to.be.undefined
         expect(mappedAddress).to.have.property('address')
         expect(mappedAddress).to.have.property('port')
@@ -158,18 +156,18 @@ describe('#STUN operations', function () {
         if (nbBindSuccesses === nbClients) {
           closeAllClients()
         }
-      }
+      };
       // execute bind operation
-      client.init(function () {
+      client.init(() => {
         client.bind(onBindSuccess, onFailure)
       })
       // store client ref
       clients.push(client)
-    }
+    };
 
-    var closeAllClients = function () {
-      clients.forEach(function (client) {
-        client.close(function () {
+    var closeAllClients = () => {
+      clients.forEach(client => {
+        client.close(() => {
           nbClientsClosed++
           if (nbClientsClosed === nbClients) {
             done()
@@ -178,26 +176,26 @@ describe('#STUN operations', function () {
       })
     }
 
-    for (var i = 0; i < nbClients; i++) {
+    for (let i = 0; i < nbClients; i++) {
       createClient()
     }
   })
 
-  it('should execute multiple concurrent STUN bind operations over UDP sockets using callbacks', function (done) {
-    var nbClients = 10
-    var clients = []
-    var nbBindSuccesses = 0
-    var nbClientsClosed = 0
+  it('should execute multiple concurrent STUN bind operations over UDP sockets using callbacks', done => {
+    const nbClients = 10;
+    const clients = [];
+    let nbBindSuccesses = 0;
+    let nbClientsClosed = 0;
 
-    var createClient = function () {
-      var transport = new transports.UDP()
-      var client = new StunClient(stunAddr, stunPort, transport)
+    const createClient = () => {
+      const transport = new transports.UDP();
+      const client = new StunClient(stunAddr, stunPort, transport);
       // if something fails
-      var onFailure = function (error) {
+      const onFailure = error => {
         done(error)
-      }
+      };
       // check bind results
-      var onBindSuccess = function (mappedAddress) {
+      const onBindSuccess = mappedAddress => {
         expect(mappedAddress).not.to.be.undefined
         expect(mappedAddress).to.have.property('address')
         expect(mappedAddress).to.have.property('port')
@@ -205,18 +203,18 @@ describe('#STUN operations', function () {
         if (nbBindSuccesses === nbClients) {
           closeAllClients()
         }
-      }
+      };
       // execute bind operation
-      client.init(function () {
+      client.init(() => {
         client.bind(onBindSuccess, onFailure)
       })
       // store client ref
       clients.push(client)
-    }
+    };
 
-    var closeAllClients = function () {
-      clients.forEach(function (client) {
-        client.close(function () {
+    var closeAllClients = () => {
+      clients.forEach(client => {
+        client.close(() => {
           nbClientsClosed++
           if (nbClientsClosed === nbClients) {
             done()
@@ -225,30 +223,30 @@ describe('#STUN operations', function () {
       })
     }
 
-    for (var i = 0; i < nbClients; i++) {
+    for (let i = 0; i < nbClients; i++) {
       createClient()
     }
   })
 
-  it('should execute STUN bind operation over TCP socket using callbacks + un-existing server', function (done) {
-    var transport = new transports.TCP()
-    var client = new StunClient('1.2.3.4', stunPort, transport)
+  it('should execute STUN bind operation over TCP socket using callbacks + un-existing server', done => {
+    const transport = new transports.TCP();
+    const client = new StunClient('1.2.3.4', stunPort, transport);
     // execute bind operation
-    client.init(function () {
+    client.init(() => {
       done('did not expect init operation to succeed')
-    }, function (error) {
+    }, error => {
       expect(error.message).to.be.a('string')
       expect(error.message).to.include('TCP connection timeout')
       done()
     })
   })
 
-  it('should execute STUN bind operation over unspecified UDP socket using promises', function (done) {
-    var retransmissionTimer
+  it('should execute STUN bind operation over unspecified UDP socket using promises', done => {
+    let retransmissionTimer;
     // send a STUN bind request and verify the reply
-    var sendBindRequest = function (client) {
+    const sendBindRequest = client => {
       client.bindP()
-        .then(function (mappedAddress) {
+        .then(mappedAddress => {
           // end retransmissionTimer
           clearTimeout(retransmissionTimer)
           // verify the mapped address
@@ -257,18 +255,18 @@ describe('#STUN operations', function () {
           expect(mappedAddress).to.have.property('port')
           return client.closeP()
         })
-        .then(function () {
+        .then(() => {
           done()
         })
-        .catch(function (error) {
+        .catch(error => {
           done(error)
         })
-    }
+    };
     // create stun client and pass socket over
-    var client = new StunClient(stunAddr, stunPort)
-    client.init(function () {
+    const client = new StunClient(stunAddr, stunPort);
+    client.init(() => {
       // retransmission timer -- we're using UDP ...
-      retransmissionTimer = setTimeout(function () {
+      retransmissionTimer = setTimeout(() => {
         console.log('resending BIND request')
         sendBindRequest(client)
       }, 3000)

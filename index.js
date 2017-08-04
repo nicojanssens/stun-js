@@ -1,12 +1,10 @@
-'use strict'
+const Attributes = require('./lib/attributes');
+const Packet = require('./lib/packet');
+const StunClient = require('./lib/stun_client');
 
-var Attributes = require('./lib/attributes')
-var Packet = require('./lib/packet')
-var StunClient = require('./lib/stun_client')
-
-var address = require('./lib/attributes/address')
-var padding = require('./lib/attributes/padding')
-var transports = require('./lib/transports')
+const address = require('./lib/attributes/address');
+const padding = require('./lib/attributes/padding');
+const transports = require('./lib/transports');
 
 module.exports = function createClient (address, port, transport) {
   return new StunClient(address, port, transport)
