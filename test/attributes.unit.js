@@ -24,7 +24,7 @@ describe('#STUN attributes', () => {
     const AlternateServer = Attributes.AlternateServer;
     const alternateServer = new AlternateServer(testAddress, testPort);
     const bytes = alternateServer.encode();
-    const decodedAlternateServer = AlternateServer.decode(bytes.slice(4, bytes.lenght));
+    const decodedAlternateServer = AlternateServer.decode(bytes.subarray(4, bytes.lenght));
     expect(decodedAlternateServer.address).to.exist
     expect(decodedAlternateServer.address).to.equal(testAddress)
     expect(decodedAlternateServer.port).to.exist
@@ -37,7 +37,7 @@ describe('#STUN attributes', () => {
     const ErrorCode = Attributes.ErrorCode;
     const errorCode = new ErrorCode(testCode);
     const bytes = errorCode.encode();
-    const decodedErrorCode = ErrorCode.decode(bytes.slice(4, bytes.lenght));
+    const decodedErrorCode = ErrorCode.decode(bytes.subarray(4, bytes.lenght));
     expect(decodedErrorCode.code).to.exist
     expect(decodedErrorCode.code).to.equal(testCode)
     expect(decodedErrorCode.reason).to.exist
@@ -51,7 +51,7 @@ describe('#STUN attributes', () => {
     const MappedAddress = Attributes.MappedAddress;
     const mappedAddress = new MappedAddress(testAddress, testPort);
     const bytes = mappedAddress.encode();
-    const decodedMappedAddress = MappedAddress.decode(bytes.slice(4, bytes.lenght));
+    const decodedMappedAddress = MappedAddress.decode(bytes.subarray(4, bytes.lenght));
     expect(decodedMappedAddress.address).to.exist
     expect(decodedMappedAddress.address).to.equal(testAddress)
     expect(decodedMappedAddress.port).to.exist
@@ -63,7 +63,7 @@ describe('#STUN attributes', () => {
     const testRealm = 'test.io';
     const testUser = 'foo';
     const testPwd = 'bar';
-    const testPacket = new Buffer('abcdefghjkl');
+    const testPacket = Buffer.from('abcdefghjkl');
     const MessageIntegrity = Attributes.MessageIntegrity;
     const messageIntegrity = new MessageIntegrity({
       username: testUser,
@@ -71,7 +71,7 @@ describe('#STUN attributes', () => {
       realm: testRealm
     });
     const bytes = messageIntegrity.encode(testPacket);
-    const decodedMessageIntegrity = MessageIntegrity.decode(bytes.slice(4, bytes.lenght));
+    const decodedMessageIntegrity = MessageIntegrity.decode(bytes.subarray(4, bytes.lenght));
     expect(decodedMessageIntegrity).to.exist
     expect(decodedMessageIntegrity.hash).to.exist
     done()
@@ -83,7 +83,7 @@ describe('#STUN attributes', () => {
     const nonce = new Nonce(testNonce);
     const bytes = nonce.encode();
     const length = bytes.readUInt16BE(2);
-    const decodedNonce = Nonce.decode(bytes.slice(4, 4 + length));
+    const decodedNonce = Nonce.decode(bytes.subarray(4, 4 + length));
     expect(decodedNonce.value).to.exist
     expect(decodedNonce.value).to.equal(testNonce)
     done()
@@ -95,7 +95,7 @@ describe('#STUN attributes', () => {
     const realm = new Realm(testRealm);
     const bytes = realm.encode();
     const length = bytes.readUInt16BE(2);
-    const decodedRealm = Realm.decode(bytes.slice(4, 4 + length));
+    const decodedRealm = Realm.decode(bytes.subarray(4, 4 + length));
     expect(decodedRealm.value).to.exist
     expect(decodedRealm.value).to.equal(testRealm)
     done()
@@ -107,7 +107,7 @@ describe('#STUN attributes', () => {
     const software = new Software(testDescription);
     const bytes = software.encode();
     const length = bytes.readUInt16BE(2);
-    const decodedSoftware = Software.decode(bytes.slice(4, 4 + length));
+    const decodedSoftware = Software.decode(bytes.subarray(4, 4 + length));
     expect(decodedSoftware.description).to.exist
     expect(decodedSoftware.description).to.equal(testDescription)
     done()
@@ -124,7 +124,7 @@ describe('#STUN attributes', () => {
     const username = new Username(testUser);
     const bytes = username.encode();
     const length = bytes.readUInt16BE(2);
-    const decodedUsername = Username.decode(bytes.slice(4, 4 + length));
+    const decodedUsername = Username.decode(bytes.subarray(4, 4 + length));
     expect(decodedUsername.name).to.exist
     expect(decodedUsername.name).to.equal(testUser)
     done()
@@ -139,7 +139,7 @@ describe('#STUN attributes', () => {
     const XORMappedAddress = Attributes.XORMappedAddress;
     const xorMappedAddress = new XORMappedAddress(testAddress, testPort);
     const bytes = xorMappedAddress.encode(magic, tid);
-    const decodedXORMappedAddress = XORMappedAddress.decode(bytes.slice(4, bytes.lenght), testHeaderBytes);
+    const decodedXORMappedAddress = XORMappedAddress.decode(bytes.subarray(4, bytes.lenght), testHeaderBytes);
     expect(decodedXORMappedAddress.address).to.exist
     expect(decodedXORMappedAddress.address).to.equal(testAddress)
     expect(decodedXORMappedAddress.port).to.exist
@@ -149,7 +149,7 @@ describe('#STUN attributes', () => {
 })
 
 function createTestHeaderBytes (magic, tid) {
-  const encodedHeader = new Buffer(Packet.HEADER_LENGTH);
+  const encodedHeader = Buffer.alloc(Packet.HEADER_LENGTH);
   const type = Packet.METHOD.ALLOCATE;
   const length = 0;
   encodedHeader.writeUInt16BE((type & 0x3fff), 0)
